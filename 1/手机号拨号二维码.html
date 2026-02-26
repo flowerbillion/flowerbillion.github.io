@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>📱 手机号拨号二维码</title>
+    <!-- 使用 QRCode 库 (轻量, 支持 canvas) -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e9eef2 0%, #dfe4e8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        /* 主卡片 — 层次感与柔和阴影 */
+        .card {
+            max-width: 520px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            background: #ffffff;
+            border-radius: 36px;
+            box-shadow: 0 25px 45px -12px rgba(0, 20, 30, 0.25),
+                        0 10px 20px -8px rgba(0, 0, 0, 0.15),
+                        inset 0 1px 2px rgba(255,255,255,0.6);
+            padding: 2rem 1.8rem;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* 标题区 */
+        .app-header {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .app-header h1 {
+            font-size: 1.9rem;
+            font-weight: 650;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #1f2b3a, #2c3e50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .app-header h1 span {
+            font-size: 2rem;
+        }
+        .subhead {
+            font-size: 1rem;
+            color: #4b5f73;
+            background: #f0f4fa;
+            padding: 0.6rem 1rem;
+            border-radius: 60px;
+            display: inline-block;
+            font-weight: 450;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.02);
+        }
+
+        /* 生成器区块 (默认显示) */
+        .generator-section {
+            transition: opacity 0.2s;
+        }
+
+        /* 输入框与标签 */
+        .input-field {
+            margin: 1.8rem 0 1rem;
+        }
+        .input-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 550;
+            color: #1e2b3a;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        .input-label i {
+            font-size: 1.2rem;
+            color: #0077be;
+        }
+        .phone-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f2f6fc;
+            border-radius: 22px;
+            border: 1.5px solid #d9e2ec;
+            transition: 0.15s;
+            padding: 0 6px 0 18px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .phone-input-wrapper:focus-within {
+            border-color: #2b7fc2;
+            box-shadow: 0 0 0 4px rgba(0,112,243,0.15);
+        }
+        .phone-input-wrapper input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 16px 12px 16px 0;
+            font-size: 1.2rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            outline: none;
+            color: #0b1c2b;
+        }
+        .phone-input-wrapper input::placeholder {
+            color: #9aafc4;
+            font-weight: 400;
+            font-size: 1rem;
+            letter-spacing: normal;
+        }
+        .prefix-icon {
+            font-size: 1.3rem;
+            color: #56789a;
+            margin-right: 6px;
+        }
+
+        /* 双按钮组 */
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0 22px;
+        }
+        .btn {
+            flex: 1;
+            border: none;
+            padding: 16px 8px;
+            border-radius: 40px;
+            font-weight: 650;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: white;
+            box-shadow: 0 5px 12px rgba(0,20,40,0.08);
+        }
+        .btn-primary {
+            background: #1e2f40;
+            color: white;
+            border: 1px solid #14232e;
+        }
+        .btn-primary:hover {
+            background: #2b4055;
+            transform: scale(1.01);
+            box-shadow: 0 10px 20px -8px #10212e;
+        }
+        .btn-secondary {
+            background: #ffffff;
+            color: #1f3a4b;
+            border: 1px solid #bccfdf;
+        }
+        .btn-secondary:hover {
+            background: #ecf3fa;
+            border-color: #8faec9;
+        }
+
+        /* 二维码展示区 */
+        .qr-preview {
+            background: #ffffff;
+            padding: 1.2rem;
+            border-radius: 32px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05), 0 15px 25px -12px rgba(34, 47, 62, 0.2);
+            margin: 1.5rem 0 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .qr-canvas-container {
+            background: #fcfcfc;
+            padding: 12px;
+            border-radius: 28px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        canvas {
+            display: block;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border-radius: 20px;
+            background: #ffffff;
+        }
+        .qr-hint {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: #3e5d77;
+            background: #e6f0f9;
+            padding: 10px 18px;
+            border-radius: 60px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .error-message {
+            color: #c3353a;
+            font-size: 0.9rem;
+            margin: 6px 0 0 10px;
+            font-weight: 500;
+            background: #ffe8e8;
+            padding: 6px 16px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+
+        /* 使用说明卡片 */
+        .instruction-card {
+            background: #f0f6fd;
+            border-radius: 30px;
+            padding: 1.5rem 1.6rem;
+            margin-top: 1.8rem;
+            border: 1px solid rgba(148, 184, 218, 0.3);
+            box-shadow: 0 8px 16px -12px #4a6680;
+        }
+        .instruction-card h3 {
+            font-size: 1.25rem;
+            color: #1b3b4f;
+            margin-bottom: 1rem;
+            font-weight: 620;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .instruction-list {
+            list-style: none;
+        }
+        .instruction-list li {
+            margin-bottom: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #23475e;
+            font-size: 0.98rem;
+            line-height: 1.4;
+        }
+        .instruction-list li::before {
+            content: "✓";
+            background: #1f4b6e;
+            color: white;
+            font-weight: bold;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 6px -2px #9fb8d0;
+        }
+
+        /* 拨号确认界面 (默认隐藏) */
+        .dialer-section {
+            text-align: center;
+            padding: 0.5rem 0 1rem;
+        }
+        .dialer-phone-number {
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: #1e2f40;
+            color: white;
+            padding: 1rem 1.2rem;
+            border-radius: 60px;
+            margin: 1.8rem 0 1.5rem;
+            box-shadow: 0 15px 20px -12px #1e3b4e;
+            border: 1px solid #6387a3;
+        }
+        .btn-dial {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 20px 28px;
+            border-radius: 60px;
+            font-size: 1.6rem;
+            font-weight: 650;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 24px 0 18px;
+            box-shadow: 0 15px 25px -8px #1b4b3b;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .btn-dial:hover {
+            background: #1e8b62;
+            transform: scale(1.01);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2e5570;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 14px 24px;
+            border-radius: 40px;
+            background: #e2ebf3;
+            border: 1px solid #b6d0e2;
+        }
+        .back-link:hover {
+            background: #ccddec;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 小emoji/icon占位 */
+        .icon {
+            font-size: 1.3rem;
+        }
+
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, #cbdae7, transparent);
+            margin: 1rem 0;
+        }
+        .note-light {
+            color: #4a637a;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+<div class="card" id="appCard">
+    <!-- 头部共用 -->
+    <div class="app-header">
+        <h1>
+            <span>📲</span> 拨号二维码
+        </h1>
+        <div class="subhead">
+            ⚡ 扫码确认 · 一键拨出
+        </div>
+    </div>
+
+    <!-- 生成器区块 (默认显示) -->
+    <div id="generatorSection" class="generator-section">
+        <div class="input-field">
+            <div class="input-label">
+                <span class="icon">📞</span> 请输入11位手机号
+            </div>
+            <div class="phone-input-wrapper">
+                <span class="prefix-icon">📱</span>
+                <input type="tel" id="phoneInput" placeholder="如 13800138000" maxlength="11" inputmode="numeric" pattern="\d*">
+            </div>
+            <div id="errorMsg" class="error-message" style="display: none;"></div>
+        </div>
+
+        <div class="action-row">
+            <button class="btn btn-primary" id="generateBtn"><span>✨</span> 生成二维码</button>
+            <button class="btn btn-secondary" id="resetBtn"><span>🔄</span> 重置</button>
+        </div>
+
+        <!-- 二维码预览区 + 提示 -->
+        <div class="qr-preview">
+            <div class="qr-canvas-container" id="qrContainer">
+                <canvas id="qrCanvas" width="200" height="200"></canvas>
+            </div>
+            <div class="qr-hint">
+                <span>📷 微信扫码 → 确认拨号</span>
+            </div>
+            <!-- 动态帮助文字 (占位) -->
+            <div style="font-size:0.85rem; color:#597a9b; margin-top:8px;">扫码后进入确认页面，点击即可呼叫</div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="instruction-card">
+            <h3><span>📋</span> 使用说明</h3>
+            <ul class="instruction-list">
+                <li>输入11位有效手机号，点击「生成二维码」</li>
+                <li>微信扫码后会进入拨号确认页面</li>
+                <li>点击「确认拨号」按钮，系统提示是否拨打</li>
+                <li>确认后将直接跳转到手机拨号界面</li>
+            </ul>
+            <hr>
+            <div class="note-light">🔔 手机测试请确保电脑/手机同一网络，通过IP访问本页面</div>
+        </div>
+    </div>
+
+    <!-- 拨号确认区块 (默认隐藏) -->
+    <div id="dialerSection" class="dialer-section hidden">
+        <div style="font-size:1.5rem; font-weight:550; color:#204156;">📞 拨号确认</div>
+        <div class="dialer-phone-number" id="dialerPhoneDisplay"></div>
+        <button class="btn-dial" id="confirmDialBtn">
+            <span>📲</span> 确认拨号
+        </button>
+      
+        <div style="margin-top:25px; color:#456f8c;">微信扫码后点击「确认」即可唤起系统拨号</div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- DOM 元素 ----------
+        const generatorSection = document.getElementById('generatorSection');
+        const dialerSection = document.getElementById('dialerSection');
+        const phoneInput = document.getElementById('phoneInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const qrCanvas = document.getElementById('qrCanvas');
+        const dialerPhoneDisplay = document.getElementById('dialerPhoneDisplay');
+        const confirmDialBtn = document.getElementById('confirmDialBtn');
+        const backLink = document.getElementById('backToGeneratorLink');
+
+        // 当前页面基础 URL (去除参数，用于生成二维码)
+        function getBaseUrl() {
+            return window.location.protocol + '//' + window.location.host + window.location.pathname;
+        }
+
+        // 辅助函数：校验手机号 (11位数字)
+        function isValidPhone(phone) {
+            return /^\d{11}$/.test(phone);  // 纯11位数字 (可根据需求收紧为1开头的号段，但此处仅做示例)
+        }
+
+        // 清空画布为浅灰色占位 (美观)
+        function clearCanvasToPlaceholder() {
+            const ctx = qrCanvas.getContext('2d');
+            ctx.fillStyle = '#f0f4fa';
+            ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+            // 增加一点网格线装饰 (可选)
+            ctx.fillStyle = '#d4dee9';
+            ctx.font = '12px system-ui';
+            ctx.fillText('二维码', 70, 110);
+        }
+
+        // 重置生成器界面 (清空输入、错误、画布占位)
+        function resetGeneratorUI() {
+            phoneInput.value = '';
+            errorMsg.style.display = 'none';
+            errorMsg.innerText = '';
+            clearCanvasToPlaceholder();
+        }
+
+        // 显示错误信息
+        function showError(text) {
+            errorMsg.innerText = text;
+            errorMsg.style.display = 'inline-block';
+        }
+
+        // 生成二维码 (基于phone)
+        function generateQRFromPhone(phone) {
+            if (!isValidPhone(phone)) {
+                showError('请输入11位有效手机号 (仅数字)');
+                clearCanvasToPlaceholder();
+                return false;
+            }
+
+            // 构建目标URL: 当前页面完整路径 + ?phone=XXX
+            const targetUrl = getBaseUrl() + '?phone=' + encodeURIComponent(phone);
+            // 调用QRCode库绘制canvas
+            QRCode.toCanvas(qrCanvas, targetUrl, { 
+                width: 200,
+                margin: 1,
+                color: { dark: '#1e2f40', light: '#ffffff' } // 深色二维码
+            }, function (error) {
+                if (error) {
+                    console.error('二维码生成失败', error);
+                    showError('二维码生成失败，请重试');
+                    clearCanvasToPlaceholder();
+                } else {
+                    // 成功：隐藏错误
+                    errorMsg.style.display = 'none';
+                }
+            });
+            return true;
+        }
+
+        // 重置按钮
+        resetBtn.addEventListener('click', function() {
+            resetGeneratorUI();
+        });
+
+        // 生成按钮
+        generateBtn.addEventListener('click', function() {
+            const phone = phoneInput.value.trim();
+            if (!phone) {
+                showError('请输入手机号');
+                clearCanvasToPlaceholder();
+                return;
+            }
+            generateQRFromPhone(phone);
+        });
+
+        // 输入框支持回车生成
+        phoneInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                generateBtn.click();
+            }
+        });
+
+        // ---------- 页面加载时根据参数切换界面 ----------
+        function initViewFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const phoneParam = params.get('phone');
+
+            // 无参数: 显示生成器，重置画布占位
+            if (!phoneParam) {
+                generatorSection.classList.remove('hidden');
+                dialerSection.classList.add('hidden');
+                resetGeneratorUI();  // 清空输入/画占位
+                return;
+            }
+
+            // 有参数: 校验是否合法手机
+            const decodedPhone = phoneParam.trim();
+            if (isValidPhone(decodedPhone)) {
+                // 有效: 隐藏生成器，显示拨号界面，并设置号码
+                generatorSection.classList.add('hidden');
+                dialerSection.classList.remove('hidden');
+                dialerPhoneDisplay.innerText = decodedPhone;
+
+                // 为拨号按钮绑定事件 (防止重复绑定)
+                confirmDialBtn.onclick = function() {
+                    // 唤起系统拨号
+                    window.location.href = 'tel:' + decodedPhone;
+                };
+
+                // 返回链接: 回到无参数首页 (保留当前path)
+                backLink.href = window.location.pathname;  // 干净链接
+            } else {
+                // 无效参数：显示生成器，并提示错误，输入框预填无效内容但高亮错误
+                generatorSection.classList.remove('hidden');
+                dialerSection.classList.add('hidden');
+                phoneInput.value = decodedPhone;  // 显示错误的内容
+                showError('无效手机号参数，请重新输入');
+                clearCanvasToPlaceholder();
+            }
+        }
+
+        // 初始调用
+        initViewFromURL();
+
+        // 额外：当通过返回链接回到生成器时，重置干净状态 (但链接已经刷新页面，但以防onclick)
+        // 同时处理当直接通过hash等情况，但没关系
+
+        // 为了更加稳健，监听popstate? 但无必要，链接刷新重新加载。
+
+        // 防止用户手动清空参数后，再生成二维码仍然正确 (已经使用getBaseUrl无参数)
+        // 若当前已经在带参页面但拨号界面下，用户无法操作生成器，所以忽略
+
+        // 补丁: 如果当前在拨号界面，但点击浏览器回退之类，已处理
+
+        // 提供手动清除画布占位，初次加载
+        if (generatorSection.classList.contains('hidden') === false) {
+            // 如果是生成器界面，确保画布占位
+            clearCanvasToPlaceholder();
+        }
+
+        // 处理手机号输入限制 (只允许数字)
+        phoneInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^\d]/g, '').slice(0, 11);
+        });
+    })();
+</script>
+<!-- 额外小优化：防止拨号按钮在pc上无反馈，增加提示 (不影响功能) -->
+</body>
+</html>
