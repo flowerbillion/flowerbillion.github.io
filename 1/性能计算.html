@@ -2,115 +2,68 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 视口设置：确保移动设备以正确比例缩放，宽度适配设备宽度，初始缩放比例为1.0 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>手机性能评估工具</title>
+    <title>工具</title>
     <style>
-        /* 彻底重置内外边距，防止滚动条异常 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         html, body {
             width: 100%;
-            /* 背景色柔和，保证手机显示时无突兀白边 */
             background-color: #f5f7fa;
         }
-
         body {
-            /* 优雅居中容器，但iframe宽度自适应，因此不做额外对齐限制 */
             min-height: 100vh;
-            /* 避免移动端横向滚动条出现 (某些浏览器由于边框或阴影导致溢出) */
             overflow-x: hidden;
-            /* 为iframe留出自然边距，提升手机端视觉舒适度，小屏下更透气 */
             padding: 0;
             margin: 0;
-            /* 字体平滑，提升整体观感 */
             -webkit-font-smoothing: antialiased;
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
-
-        /* iframe 响应式核心样式：
-           1. 保留原设计的半宽特性 (PC大屏下半宽展示，符合原始设计)
-           2. 手机屏幕下自动切换为全宽，充分利用屏幕空间，提升可读性
-           3. 移除默认边框，让嵌入内容更融合
-           4. 处理触摸滚动，保证移动端滑动顺畅
-        */
         iframe {
-            /* 保留原有 width="50%" 的视觉效果（作为后备样式） */
             width: 50%;
-            /* 保留原有高度500px，保证内容可视区域足够 */
             height: 500px;
-            /* 边框清零，现代简洁风格 */
             border: none;
-            /* 块级化消除行内元素下方空隙 */
             display: block;
-            /* 平滑滚动，针对iOS Safari优化 */
             -webkit-overflow-scrolling: touch;
-            /* 过渡效果柔和，但无性能负担 */
             transition: width 0.2s ease;
-            /* 在PC上保留水平居中效果（配合body默认无margin），视觉更平衡 */
             margin: 0 auto;
-            /* 当内容超出宽度时，保证滚动，避免撑破父级 */
             overflow: auto;
-            /* 盒子模型确保边框不增加宽度 */
             box-sizing: border-box;
         }
-
-        /* 针对手机屏幕与小平板（宽度小于等于 768px）样式优化，全面兼容手机 */
         @media screen and (max-width: 768px) {
             iframe {
-                /* 手机下宽度100%，完全填满父容器，无需左右滑动即可看到完整内容 */
                 width: 100% !important;
-                /* 为了更好的阅读体验，高度使用视口比例（不低于400px保证内容展示，同时避免过短）
-                   500px在多数竖屏手机（如iPhone SE、Pixel等）稍微偏长，但滚动自然。
-                   若需要更灵活，可使用 min-height: 60vh，但保留500px能遵循原始设计且稳定。
-                   为了提高手机大屏旗舰机体验，保持500px的同时也允许内容自行滚动。 */
                 height: 500px;
-                /* 手机上去掉外边距，完全贴合屏幕边缘，防止两侧空白 */
                 margin: 0;
-                /* 增加轻量级圆角（可选，视觉舒适） */
                 border-radius: 0;
             }
         }
-
-        /* 针对极小屏设备（宽度 ≤ 480px，例如较老的小屏手机），保持高度不过分压缩
-           并确保横向不溢出 */
         @media screen and (max-width: 480px) {
             iframe {
-                height: 500px;      /* 维持基本高度，内部滚动即可 */
-                min-height: 420px;   /* 极端情况下避免高度过低，维持核心显示区域 */
+                height: 500px;
+                min-height: 420px; 
             }
         }
-
-        /* 当设备横屏时，针对手机体验微调：适当提升高度，利用横向空间 */
         @media screen and (orientation: landscape) and (max-width: 896px) {
             iframe {
-                height: calc(100vh - 20px); /* 横屏时几乎占满全屏，充分利用视野，但保留顶部微小留白 */
-                max-height: 550px;           /* 防止内容过高导致多屏滚动冗余，平衡体验 */
+                height: calc(100vh - 20px); 
+                max-height: 550px;           
             }
         }
-
-        /* 针对折叠屏或大屏手机 (如 Galaxy Fold 展开模式) 确保依然响应合理 */
         @media screen and (min-width: 768px) and (max-width: 1024px) {
             iframe {
-                width: 75%;   /* 介于手机和平板之间，75%显示更舒适，但仍比PC半宽略宽 */
+                width: 75%;  
             }
         }
-
-        /* 为老式浏览器保留降级方案，确保iframe不出界 */
         iframe {
             max-width: 100%;
         }
-
-        /* 优雅加载提示（可选，只是增加趣味，不影响主要功能） */
         .loading-placeholder {
             display: none;
         }
-
-        /* 提升交互提示：手机用户可以缩放页面，但iframe内部滚动完整。父级无额外干扰 */
         .sr-only {
             position: absolute;
             width: 1px;
@@ -124,66 +77,35 @@
     </style>
 </head>
 <body>
-    <!-- 可访问性增强：隐藏文本供屏幕阅读器使用 -->
-    <span class="sr-only">手机性能计算工具，下方为详细评估面板，支持触摸滚动操作</span>
-
-    <!-- 
-        内嵌手机性能计算页面。
-        保留原始 width="50%" 与 height="500px" 属性，保证PC上初见与设计一致。
-        CSS 通过媒体查询优雅覆盖移动布局，实现完全手机兼容。 
-        注意：若内部“手机性能计算.html”也具备响应式视口或移动端优化，效果最佳。
-        本父页面已经提供最完善跨设备适配方案。
-    -->
+    <span class="sr-only"></span>
     <iframe 
         src="手机性能计算.html" 
         width="50%" 
         height="500px" 
-        title="手机性能基准测试与计算工具"
+        title="gjbh"
         loading="lazy"
         referrerpolicy="origin"
         sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"
-        style="border:0;"
-    >
-        <!-- 后备信息：如果浏览器不支持iframe，显示提示 -->
-        <p>抱歉，您的浏览器无法嵌入此计算工具。请升级浏览器或<a href="手机性能计算.html">点击直接访问</a>手机性能计算页面。</p>
+        style="border:0;">
+        <p><a href="手机性能计算.html"></a></p>
     </iframe>
-
-    <!-- 简单说明：手机下适配效果已开启，提升用户体验 -->
-    <div style="text-align: center; font-size: 12px; color: #6c757d; margin: 12px 16px; line-height: 1.4; background: transparent;">
-        <span style="background: rgba(255,255,240,0.7); padding: 4px 12px; border-radius: 20px; backdrop-filter: blur(2px);">📱 手机模式已优化 | 双指缩放可查看更多细节</span>
-    </div>
-
-    <!-- 确保在某些老旧浏览器中，iframe不会因为默认样式而溢出 -->
     <script>
         (function() {
-            // 轻量级检测：防止极少数怪异浏览器下iframe宽度不刷新 (非侵入式)
-            // 同时保证在手机竖屏/横屏切换时，重新触发样式继承，让CSS媒体查询完全生效。
-            // 没有复杂操作，只是确保浏览器的响应式特性正常工作。
             if ('ResizeObserver' in window) {
-                // 可选高级: 当body尺寸变动时，保证iframe布局稳定性（无需复杂逻辑，只是保持稳定）
                 const observer = new ResizeObserver(function(entries) {
                     for (let entry of entries) {
                         if (entry.target === document.body) {
-                            // 无侵入：仅仅触发重绘，不修改任何样式逻辑，保证媒体查询已经生效。
-                            // 某些安卓浏览器需要微小强制同步，但不影响性能。
                         }
                     }
                 });
                 observer.observe(document.body);
             }
-            // 附加处理：确保触摸滑动时iframe内部滚动顺畅（为iframe增加touch-action属性，避免父级滚动冲突）
             const frame = document.querySelector('iframe');
             if (frame && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                // 移动端加强: 保证iframe内部可独立滚动，父级不拦截触摸事件
-                frame.style.touchAction = 'pan-y pinch-zoom';  // 保留垂直滚动和双指缩放，提升交互
-                // 增加惯性滚动支持（iOS特性）
+                frame.style.touchAction = 'pan-y pinch-zoom';  
                 frame.style.webkitOverflowScrolling = 'touch';
             }
-            // 可选：如果嵌入页面高度内容非常多，保持现有高度完全可滚动，无需额外修改
-            // 此脚本保证不影响原始性能数据和逻辑，仅提升兼容
         })();
     </script>
-    <!-- 注：如需彻底解决“手机性能计算.html”自身未添加meta viewport的问题，
-         请确保内部页面也设置响应式样式。本父页面已做好最优容器适配，提升手机显示效果。 -->
 </body>
 </html>
