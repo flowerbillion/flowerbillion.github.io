@@ -1,13 +1,4 @@
 <!doctype html>
 <html>
-   <div id="content"></div>
-
-<script>
-  fetch('手机性能计算.html')
-    .then(response => response.text())
-    .then(html => {
-      document.getElementById('content').innerHTML = html;
-    })
-    .catch(err => console.error('加载失败：', err));
-</script>
+   <iframe src="手机性能计算.html" width="50%" height="500px"></iframe>
 </html>
