@@ -1,0 +1,4344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
+  <title>灵动起始页</title>
+  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none; 
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "PingFang SC",
+        "Hiragino Sans GB",
+        "Microsoft YaHei",
+        sans-serif;
+      background: #0b1220;
+    }
+    :root {
+      --icon-size: clamp(46px, 12vw, 58px);
+      --icon-radius: clamp(12px, 3vmin, 18px);
+      --grid-gap: 18px 14px;
+      --grid-columns: 5;
+      --page-padding: 0 20px 32px;
+      --header-time-size: clamp(42px, 12vw, 52px);
+      --header-date-size: clamp(13px, 3vw, 15px);
+      --label-font-size: clamp(10px, 2.2vw, 11px);
+      --dock-height: clamp(62px, 10vh, 76px);
+      --dock-max-width: 440px;
+      --search-max-width: 440px;
+      --quote-max-width: 440px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --panel-bg: rgba(8, 14, 26, 0.96);
+      --panel-border: rgba(255, 255, 255, 0.12);
+      --btn-bg: rgba(255, 255, 255, 0.14);
+      --btn-hover-bg: rgba(255, 255, 255, 0.22);
+      --btn-active-bg: rgba(255, 255, 255, 0.28);
+      --primary-gradient: linear-gradient(135deg, #5b8cff, #7c5cff);
+      --primary-hover-gradient: linear-gradient(135deg, #6a99ff, #8b6dff);
+      --success-color: #48bb78;
+      --danger-color: #f56565;
+    }
+    body {
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .wallpaper {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(94,129,244,.34), transparent 35%),
+        radial-gradient(circle at 80% 15%, rgba(62,226,173,.18), transparent 30%),
+        radial-gradient(circle at 50% 80%, rgba(233,124,255,.18), transparent 35%),
+        linear-gradient(180deg, #223352 0%, #132038 42%, #0b1426 100%);
+      z-index: 0;
+      transition: background 0.3s ease;
+    }
+    .wallpaper::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,.07), rgba(255,255,255,.01) 18%, rgba(0,0,0,.08) 100%);
+      pointer-events: none;
+    }
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0 var(--safe-right) 0 var(--safe-left);
+    }
+    .delete-zone {
+      position: fixed;
+      top: calc(var(--safe-top) + 6px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-120%);
+      width: clamp(70px, 12vw, 90px);
+      height: clamp(70px, 12vw, 90px);
+      border-radius: 50%;
+      background: rgba(18, 20, 27, .25);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      z-index: 3000;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .22s ease, background .18s ease, border-color .18s ease;
+      box-shadow: 0 16px 34px rgba(0,0,0,.2);
+    }
+    .delete-zone.active {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    .delete-zone.hover {
+      background: rgba(214, 46, 46, .86);
+      border-color: rgba(255,255,255,.15);
+    }
+    .delete-zone .iconify {
+      font-size: 24px;
+    }
+    .delete-zone span {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .2px;
+      text-align: center;
+      line-height: 1;
+    }
+    .top-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: var(--btn-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      transition: background .18s ease, transform .15s ease;
+      flex-shrink: 0;
+    }
+    .top-btn:hover {
+      background: var(--btn-hover-bg);
+    }
+    .top-btn:active {
+      transform: scale(.95);
+    }
+    .top-btn .iconify {
+      font-size: 18px;
+    }
+    .top-actions {
+      position: absolute;
+      top: calc(var(--safe-top) + 12px);
+      right: 16px;
+      z-index: 20;
+      display: none;
+    }
+    .header-section {
+      width: 100%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
+      padding: calc(var(--safe-top) + 12px) 20px 0;
+      text-shadow: 0 2px 8px rgba(0,0,0,.22);
+      z-index: 5;
+    }
+    .header-time {
+      font-size: var(--header-time-size);
+      font-weight: 200;
+      line-height: 1;
+      letter-spacing: -1px;
+      margin-bottom: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+    .header-date {
+      font-size: var(--header-date-size);
+      opacity: .96;
+      margin-bottom: 16px;
+    }
+    .quote-container {
+      width: 90%;
+      max-width: var(--quote-max-width);
+      margin-bottom: 14px;
+      min-height: 22px;
+    }
+    .quote-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
+    .quote-text-wrap {
+      flex: 0 1 auto;
+      max-width: 85%;
+      overflow: hidden;
+      position: relative;
+    }
+    .quote-text {
+      color: rgba(255,255,255,.96);
+      font-size: 14px;
+      line-height: 18px;
+      white-space: nowrap;
+      display: inline-block;
+    }
+    .quote-text.scroll {
+      animation: quoteScroll 10s linear infinite;
+    }
+    .quote-text-wrap:hover .quote-text.scroll {
+      animation-play-state: paused;
+    }
+    @keyframes quoteScroll {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+    .quote-edit-btn {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      opacity: .82;
+      transition: opacity .18s ease;
+      flex-shrink: 0;
+    }
+    .quote-edit-btn:hover {
+      opacity: 1;
+    }
+    .quote-edit-mode {
+      display: none;
+      width: 100%;
+      gap: 8px;
+      align-items: center;
+    }
+    .quote-edit-mode.active {
+      display: flex;
+    }
+    .quote-input {
+      flex: 1;
+      height: 36px;
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      padding: 0 12px;
+      background: var(--btn-bg);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-size: 13px;
+      border: 1px solid var(--panel-border);
+    }
+    .quote-input::placeholder {
+      color: rgba(255,255,255,.6);
+    }
+    .quote-action-btn {
+      height: 36px;
+      border: none;
+      outline: none;
+      padding: 0 12px;
+      border-radius: 10px;
+      background: var(--btn-bg);
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: background .18s ease;
+    }
+    .quote-action-btn:hover {
+      background: var(--btn-hover-bg);
+    }
+    .search-bar {
+      width: 90%;
+      max-width: var(--search-max-width);
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 14px;
+      margin-bottom: 14px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.16);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      position: relative;
+      border: 1px solid var(--panel-border);
+    }
+    .search-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .search-icon {
+      font-size: 18px;
+      color: white;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform .18s ease;
+    }
+    .search-icon:active {
+      transform: scale(.92);
+    }
+    .search-input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: rgba(255,255,255,.95);
+      font-size: 14px;
+    }
+    .search-input::placeholder {
+      color: rgba(255,255,255,.72);
+    }
+    .search-actions {
+      display: flex;
+      gap: 10px;
+      opacity: .95;
+      flex-shrink: 0;
+    }
+    .search-actions .iconify {
+      font-size: 17px;
+      color: rgba(255,255,255,.92);
+    }
+    .engine-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: 100%;
+      border-radius: 16px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.3);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px);
+      transition: all .25s ease;
+      overflow: hidden;
+      border: 1px solid var(--panel-border);
+    }
+    .engine-panel.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .engine-list {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 12px;
+    }
+    .engine-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background .18s ease, transform .15s ease;
+      background: transparent;
+      position: relative;
+    }
+    .engine-item:hover {
+      background: var(--btn-hover-bg);
+      transform: scale(1.05);
+    }
+    .engine-item.active {
+      background: rgba(91, 140, 255, 0.2);
+    }
+    .engine-item.add-btn {
+      border: 2px dashed rgba(255,255,255,0.3);
+    }
+    .engine-item.add-btn:hover {
+      border-color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.1);
+    }
+    .engine-item .delete-engine {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(214, 46, 46, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .2s;
+      cursor: pointer;
+    }
+    .engine-item:hover .delete-engine {
+      opacity: 1;
+    }
+    .engine-item .delete-engine .iconify {
+      font-size: 12px;
+    }
+    .engine-item .iconify {
+      font-size: 22px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .engine-name {
+      font-size: 12px;
+      color: #fff;
+      text-align: center;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+    .desktop {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      overflow: hidden;
+      perspective: 1200px;
+    }
+    .pages-container {
+      display: flex;
+      width: fit-content;
+      height: 100%;
+      transform: translate3d(0,0,0);
+      will-change: transform;
+      transition: transform .42s cubic-bezier(.22,.88,.24,1);
+    }
+    .page {
+      width: 100vw;
+      height: 100%;
+      padding: var(--page-padding);
+      display: grid;
+      grid-template-columns: repeat(var(--grid-columns), 1fr);
+      grid-auto-rows: min-content;
+      gap: var(--grid-gap);
+      align-content: start;
+      justify-items: center;
+      position: relative;
+      transform-origin: center center;
+      transition: opacity .34s ease, transform .42s cubic-bezier(.22,.88,.24,1), filter .34s ease;
+      opacity: .72;
+      filter: saturate(.88);
+      transform: scale(.94) rotateY(9deg);
+    }
+    .page.page-current {
+      opacity: 1;
+      filter: saturate(1);
+      transform: scale(1) rotateY(0);
+    }
+    .page.page-prev {
+      transform: scale(.965) rotateY(8deg);
+    }
+    .page.page-next {
+      transform: scale(.965) rotateY(-8deg);
+    }
+    .page.drag-target,
+    .dock.drag-target,
+    .folder-grid.drag-target {
+      outline: 1px solid rgba(255,255,255,.18);
+      outline-offset: -1px;
+    }
+    .app-icon {
+      width: var(--icon-size);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      touch-action: none;
+      will-change: transform;
+      position: relative;
+      transition: transform .2s ease, opacity .2s ease;
+    }
+    .app-icon:active {
+      transform: scale(.96);
+    }
+    .icon-bg {
+      width: var(--icon-size);
+      height: var(--icon-size);
+      border-radius: var(--icon-radius);
+      background: rgba(255,255,255,.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow:
+        0 8px 20px rgba(0,0,0,.14),
+        inset 0 1px 0 rgba(255,255,255,.08);
+      transition: transform .18s ease, outline .18s ease, box-shadow .18s ease;
+      position: relative;
+    }
+    .icon-bg .iconify {
+      font-size: calc(var(--icon-size) * .6);
+      color: #fff;
+    }
+    .icon-bg img.custom-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
+
+    .icon-label {
+      margin-top: 7px;
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      font-size: var(--label-font-size);
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+    .folder-preview {
+      position: absolute;
+      inset: 8%;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 4px;
+    }
+    .folder-preview-cell {
+      border-radius: 6px;
+      background: rgba(255,255,255,.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .folder-preview-cell .iconify {
+      font-size: calc(var(--icon-size) * .22);
+    }
+    .folder-preview-cell img.custom-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+    .page-indicators {
+      position: absolute;
+      left: 50%;
+      bottom: calc(10px + var(--safe-bottom));
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 6;
+    }
+    .indicator-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.36);
+      transition: all .25s ease;
+      cursor: pointer;
+    }
+    .indicator-dot.active {
+      width: 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.96);
+    }
+    .dock-wrap {
+      width: 100%;
+      padding: 0 16px calc(12px + var(--safe-bottom));
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      z-index: 8;
+    }
+    .dock {
+      width: 100%;
+      max-width: var(--dock-max-width);
+      min-height: var(--dock-height);
+      border-radius: 24px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 9px;
+      background: rgba(255,255,255,.14);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow:
+        0 12px 28px rgba(0,0,0,.15),
+        inset 0 1px 0 rgba(255,255,255,.10);
+      position: relative;
+      border: 1px solid var(--panel-border);
+    }
+    .dock .app-icon {
+      width: calc(var(--icon-size) * .92);
+      flex-shrink: 0;
+    }
+    .dock .icon-bg {
+      width: calc(var(--icon-size) * .92);
+      height: calc(var(--icon-size) * .92);
+    }
+    .dock .icon-label {
+      display: none;
+    }
+    .drag-ghost {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 4000;
+      pointer-events: none;
+      will-change: transform;
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,.28));
+    }
+    .drag-ghost .app-icon {
+      transform: scale(1.06);
+    }
+    .app-icon.drag-source {
+      opacity: .18 !important;
+    }
+    .app-icon.merge-hover .icon-bg {
+      outline: 2px solid rgba(255,255,255,.95);
+      outline-offset: 2px;
+      transform: scale(1.06);
+      box-shadow:
+        0 12px 30px rgba(0,0,0,.18),
+        0 0 0 8px rgba(255,255,255,.08),
+        inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .app-icon.merge-hover::after {
+      content: "合并到文件夹";
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 11px;
+      line-height: 1;
+      padding: 5px 7px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.64);
+      color: #fff;
+    }
+    .folder-modal,
+    .form-modal,
+    .wallpaper-modal,
+    .engine-form-modal,
+    .sync-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 2500;
+      padding: 20px;
+    }
+    .folder-modal.active,
+    .form-modal.active,
+    .wallpaper-modal.active,
+    .engine-form-modal.active,
+    .sync-modal.active {
+      display: flex;
+    }
+    .folder-content,
+    .form-content,
+    .wallpaper-content,
+    .engine-form-content,
+    .sync-content {
+      width: min(560px, 92vw);
+      border-radius: 28px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 18px 40px rgba(0,0,0,.3);
+      overflow: hidden;
+      border: 1px solid var(--panel-border);
+    }
+    .folder-content {
+      min-height: 320px;
+      max-height: 78vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .folder-header,
+    .form-header,
+    .wallpaper-header,
+    .engine-form-header,
+    .sync-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 18px 0;
+      color: #fff;
+    }
+    .folder-title,
+    .form-title,
+    .wallpaper-title,
+    .engine-form-title,
+    .sync-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .folder-body {
+      padding: 20px;
+      overflow: auto;
+      flex: 1;
+    }
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      justify-items: center;
+      min-height: 180px;
+      border-radius: 20px;
+      padding: 6px;
+      position: relative;
+    }
+    .folder-tip {
+      margin-top: 16px;
+      text-align: center;
+      color: rgba(255,255,255,.78);
+      font-size: 12px;
+    }
+    .context-menu {
+      position: fixed;
+      min-width: 188px;
+      padding: 8px 0;
+      border-radius: 16px;
+      background: var(--panel-bg);
+      color: #fff;
+      box-shadow: 0 18px 40px rgba(0,0,0,.3);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 3500;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(.96);
+      transform-origin: top left;
+      transition: opacity .18s ease, transform .18s ease;
+      border: 1px solid var(--panel-border);
+    }
+    .context-menu.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+    .context-item {
+      height: 42px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .18s ease;
+    }
+    .context-item:hover {
+      background: var(--btn-hover-bg);
+    }
+    .context-item .iconify {
+      font-size: 18px;
+    }
+    .context-item.danger {
+      color: #ff6b6b;
+    }
+    .context-divider {
+      height: 1px;
+      margin: 6px 0;
+      background: var(--panel-border);
+    }
+    .form-body, .wallpaper-body, .engine-form-body, .sync-body {
+      padding: 18px;
+    }
+    .form-row {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 8px;
+      opacity: .92;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      height: 42px;
+      border: none;
+      outline: none;
+      border-radius: 14px;
+      padding: 0 14px;
+      background: var(--btn-bg);
+      color: #fff;
+      font-size: 14px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--panel-border);
+    }
+    .form-input::placeholder {
+      color: rgba(255,255,255,.6);
+    }
+    .icon-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .icon-input-row .form-input {
+      flex: 1;
+    }
+    .icon-select-btn {
+      height: 42px;
+      min-width: 42px;
+      border: none;
+      outline: none;
+      border-radius: 14px;
+      background: var(--btn-bg);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .18s ease;
+      flex-shrink: 0;
+    }
+    .icon-select-btn:hover {
+      background: var(--btn-hover-bg);
+    }
+    .icon-select-btn .iconify {
+      font-size: 18px;
+    }
+    .file-input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+    .file-input-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--btn-bg);
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px dashed var(--panel-border);
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .file-input-label:hover {
+      background: var(--btn-hover-bg);
+      border-color: rgba(255,255,255,.2);
+    }
+    .file-input-label .iconify {
+      font-size: 16px;
+    }
+    .form-preview {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--btn-bg);
+      border: 1px solid var(--panel-border);
+    }
+    .form-preview-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,.12);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .form-preview-icon .iconify {
+      font-size: 30px;
+      color: #fff;
+    }
+    .form-preview-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+    .form-preview-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+    }
+    .form-preview-link {
+      font-size: 12px;
+      color: rgba(255,255,255,.7);
+      margin-top: 2px;
+    }
+    .form-actions, .wallpaper-actions, .engine-form-actions, .sync-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 18px 18px;
+    }
+    .form-btn {
+      min-width: 84px;
+      height: 40px;
+      border: none;
+      outline: none;
+      border-radius: 14px;
+      padding: 0 16px;
+      cursor: pointer;
+      color: #fff;
+      background: var(--btn-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: background .18s ease, transform .15s ease;
+      font-size: 14px;
+    }
+    .form-btn:hover {
+      background: var(--btn-hover-bg);
+    }
+    .form-btn:active {
+      transform: scale(.98);
+    }
+    .form-btn.primary {
+      background: var(--primary-gradient);
+    }
+    .form-btn.primary:hover {
+      background: var(--primary-hover-gradient);
+    }
+    .form-btn.success {
+      background: linear-gradient(135deg, var(--success-color), #38a169);
+    }
+    .form-btn.danger {
+      background: linear-gradient(135deg, var(--danger-color), #c53030);
+    }
+    .wallpaper-file-input {
+      margin-bottom: 14px;
+    }
+    .search-screen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(76,140,200,0.8) 0%, rgba(120,180,220,0.6) 40%, rgba(200,180,120,0.6) 100%);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      padding: 0 var(--safe-right) 0 var(--safe-left);
+      transition: opacity .25s ease, transform .25s ease;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .search-screen.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .search-screen-header {
+      width: 100%;
+      padding: calc(var(--safe-top) + 12px) 20px 0;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .search-screen-bar {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+    .search-close-btn {
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0);
+      padding: 0;
+    }
+    .search-engine-panel {
+      top: calc(100% + 8px);
+      left: 0;
+      width: 100%;
+    }
+    .search-screen-body {
+      flex: 1;
+      width: 100%;
+      padding: 20px;
+      overflow-y: auto;
+      position: relative;
+    }
+    /* 搜索建议列表样式 - 直接显示在body中 */
+    .suggest-list-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .suggest-section-title {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 12px;
+      padding-left: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .suggest-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .suggest-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all .2s ease;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .suggest-item:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.2);
+      transform: translateX(4px);
+    }
+    .suggest-item .iconify {
+      font-size: 18px;
+      color: rgba(255,255,255,.7);
+      flex-shrink: 0;
+    }
+    .suggest-text {
+      font-size: 15px;
+      color: #fff;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .suggest-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+      align-items: center;
+      justify-content: center;
+  transition: all .2s ease;  
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+}
+
+    .suggest-arrow .iconify {
+      font-size: 16px;
+    }
+    .suggest-empty {
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      padding: 40px 20px;
+      font-size: 14px;
+    }
+    .suggest-history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-left: 8px;
+    }
+    .suggest-clear-history {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all .2s;
+    }
+    .suggest-clear-history:hover {
+      color: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.1);
+    }
+    .__xs_toast__ {
+      position: fixed;
+      left: 50%;
+      bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+      transform: translateX(-50%);
+      background: var(--panel-bg);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      z-index: 99999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .25s ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    }
+    /* 同步设置特有样式 */
+    .sync-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--panel-border);
+    }
+    .sync-status-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--btn-bg);
+    }
+    .sync-status-icon.success {
+      background: rgba(72, 187, 120, 0.2);
+      color: var(--success-color);
+    }
+    .sync-status-icon.error {
+      background: rgba(245, 101, 101, 0.2);
+      color: var(--danger-color);
+    }
+    .sync-status-text {
+      flex: 1;
+    }
+    .sync-status-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .sync-status-desc {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 2px;
+    }
+    .sync-interval-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 15px 0;
+      padding: 10px 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sync-interval-label {
+      font-weight: 600;
+      color: #fff;
+      font-size: 14px;
+    }
+    .sync-interval-select {
+      width: 120px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--btn-bg);
+      color: #fff;
+      border: 1px solid var(--panel-border);
+      font-size: 14px;
+      padding: 0 10px;
+      cursor: pointer;
+      outline：none；
+    }
+    .sync-interval-select option {
+      background: var(--panel-bg);
+      color: #fff;
+    }
+    .last-sync-info {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      margin-top: 10px;
+    }
+    .next-sync-info {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      margin-top: 4px;
+    }
+    
+.app-icon img,
+.folder-preview-cell img,
+.form-preview-icon img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+.app-icon .icon-bg,
+.folder-preview-cell,
+.form-preview-icon {
+  pointer-events: auto; 
+}
+    @media (min-width: 768px) {
+      :root {
+        --dock-max-width: 620px;
+      }
+      .header-section {
+        padding-top: 22px;
+      }
+      .search-bar {
+        height: 44px;
+      }
+      .folder-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .engine-list {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wallpaper" id="wallpaperRoot"></div>
+  <div class="delete-zone" id="deleteZone">
+    <span class="iconify" data-icon="mdi:trash-can-outline"></span>
+    <span>删除</span>
+  </div>
+  <div class="app-shell">
+    <div class="top-actions"></div>
+    <div class="header-section">
+      <div class="header-time" id="bigTime">00:00</div>
+      <div class="header-date" id="headerDate">1月1日 星期一</div>
+      <div class="quote-container">
+        <div class="quote-display" id="quoteDisplayWrap">
+          <div class="quote-text-wrap">
+            <div class="quote-text" id="quoteDisplay">生活不是等待风暴过去，而是学会在雨中跳舞。</div>
+          </div>
+          <span class="quote-edit-btn" onclick="editQuote()">
+            <span class="iconify" data-icon="mdi:pencil-outline"></span>
+          </span>
+        </div>
+        <div class="quote-edit-mode" id="quoteEditMode">
+          <input id="quoteInput" class="quote-input" type="text" placeholder="输入每日一言" maxlength="100" />
+          <button class="quote-action-btn" onclick="saveQuote()">保存</button>
+          <button class="quote-action-btn" onclick="cancelQuoteEdit()">取消</button>
+        </div>
+      </div>
+      <div class="search-bar">
+        <div class="search-left">
+          <span class="search-icon iconify" id="engineIcon" data-icon="simple-icons:baidu" onclick="toggleEnginePanel()"></span>
+          <input id="searchInput" class="search-input" type="search" placeholder="搜索或输入网址后回车" />
+        </div>
+        <div class="search-actions">
+          <span class="iconify" data-icon="mdi:microphone-outline"></span>
+          <span class="iconify" data-icon="mdi:camera-outline"></span>
+        </div>
+        <div class="engine-panel" id="enginePanel">
+          <div class="engine-list" id="engineList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="desktop" id="desktop">
+      <div class="pages-container" id="pagesContainer"></div>
+      <div class="page-indicators" id="pageIndicators"></div>
+    </div>
+    <div class="dock-wrap">
+      <div class="dock" id="dock"></div>
+    </div>
+  </div>
+  <div class="search-screen" id="searchScreen">
+    <div class="search-screen-header">
+      <div class="search-bar search-screen-bar">
+        <div class="search-left">
+          <span class="search-icon iconify" id="searchScreenEngineIcon" data-icon="simple-icons:baidu" onclick="toggleSearchScreenEnginePanel()"></span>
+          <input id="searchScreenInput" class="search-input" type="search" placeholder="搜索或输入网址后回车" />
+        </div>
+        <div class="search-actions">
+          <button class="top-btn search-close-btn" id="searchCloseBtn" onclick="closeSearchScreen()">
+            <span class="iconify" data-icon="ep:back"></span>
+          </button>
+        </div>
+      </div>
+      <div class="engine-panel search-engine-panel" id="searchScreenEnginePanel">
+        <div class="engine-list" id="searchScreenEngineList"></div>
+      </div>
+    </div>
+    <div class="search-screen-body" id="searchScreenBody">
+      <!-- 搜索建议将直接显示在这里 -->
+    </div>
+  </div>
+  <div class="folder-modal" id="folderModal" onclick="closeFolder()">
+    <div class="folder-content" onclick="event.stopPropagation()">
+      <div class="folder-header">
+        <div class="folder-title" id="folderTitle">文件夹</div>
+        <button class="top-btn" onclick="closeFolder()">
+          <span class="iconify" data-icon="mdi:close"></span>
+        </button>
+      </div>
+      <div class="folder-body">
+        <div class="folder-grid" id="folderGrid"></div>
+        <div class="folder-tip" id="folderEmpty">文件夹为空</div>
+      </div>
+    </div>
+  </div>
+  <div class="context-menu" id="contextMenu">
+    <div class="context-item" id="ctxOpen">
+      <span class="iconify" data-icon="mdi:open-in-app"></span>
+      <span>打开</span>
+    </div>
+    <div class="context-item" id="ctxEdit">
+      <span class="iconify" data-icon="mdi:pencil-outline"></span>
+      <span>编辑</span>
+    </div>
+    <div class="context-item" id="ctxAdd">
+      <span class="iconify" data-icon="mdi:plus-circle-outline"></span>
+      <span>添加</span>
+    </div>
+    <div class="context-divider"></div>
+    <div class="context-item" id="ctxWallpaper">
+      <span class="iconify" data-icon="mdi:wallpaper"></span>
+      <span>背景设置</span>
+    </div>
+    <div class="context-divider"></div>
+    <div class="context-item danger" id="ctxDelete">
+      <span class="iconify" data-icon="mdi:delete-outline"></span>
+      <span>删除</span>
+    </div>
+  </div>
+  <div class="form-modal" id="formModal" onclick="closeFormModal()">
+    <div class="form-content" onclick="event.stopPropagation()">
+      <div class="form-header">
+        <div class="form-title" id="formTitle">添加应用</div>
+        <button class="top-btn" onclick="closeFormModal()">
+          <span class="iconify" data-icon="mdi:close"></span>
+        </button>
+      </div>
+      <div class="form-body">
+        <div class="form-row">
+          <label class="form-label">名称</label>
+          <input id="formName" class="form-input" />
+        </div>
+        <div class="form-row" id="formUrlRow">
+          <label class="form-label">应用链接</label>
+          <input id="formUrl" class="form-input" />
+        </div>
+        <div class="form-row" id="formIconRow">
+          <label class="form-label">图标链接 / Iconify</label>
+          <div class="icon-input-row">
+            <input id="formIcon" class="form-input" />
+            <button class="icon-select-btn" id="iconSelectBtn" title="选择本地图片">
+              <span class="iconify" data-icon="mdi:image-outline"></span>
+            </button>
+            <input type="file" id="iconFileInput" accept="image/*" style="display: none;" />
+          </div>
+        </div>
+        <div class="form-preview">
+          <div class="form-preview-icon" id="formPreviewIcon"></div>
+          <div class="form-preview-text">
+            <div class="form-preview-name" id="formPreviewName"></div>
+            <div class="form-preview-link" id="formPreviewLink"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="form-btn" onclick="closeFormModal()">取消</button>
+        <button class="form-btn primary" id="formSaveBtn">保存</button>
+      </div>
+    </div>
+  </div>
+  <!-- 自定义搜索引擎表单 -->
+  <div class="engine-form-modal" id="engineFormModal" onclick="closeEngineFormModal()">
+    <div class="engine-form-content" onclick="event.stopPropagation()">
+      <div class="engine-form-header">
+        <div class="engine-form-title" id="engineFormTitle">添加搜索引擎</div>
+        <button class="top-btn" onclick="closeEngineFormModal()">
+          <span class="iconify" data-icon="mdi:close"></span>
+        </button>
+      </div>
+      <div class="engine-form-body">
+        <div class="form-row">
+          <label class="form-label">引擎名称</label>
+          <input id="engineFormName" class="form-input" placeholder="例如：搜狗" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">图标 (Iconify标识，如 simple-icons:google)</label>
+          <input id="engineFormIcon" class="form-input" placeholder="simple-icons:google" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">搜索URL (使用%s代替搜索词)</label>
+          <input id="engineFormUrl" class="form-input" placeholder="https://www.example.com/search?q=%s" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">示例：https://www.google.com/search?q=%s</label>
+        </div>
+      </div>
+      <div class="engine-form-actions">
+        <button class="form-btn" onclick="closeEngineFormModal()">取消</button>
+        <button class="form-btn primary" onclick="saveCustomEngine()">保存</button>
+      </div>
+    </div>
+  </div>
+  <!-- 云同步设置模态框 -->
+  <div class="sync-modal" id="syncModal" onclick="closeSyncModal()">
+    <div class="sync-content" onclick="event.stopPropagation()">
+      <div class="sync-header">
+        <div class="sync-title">
+          <span class="iconify" data-icon="mdi:cloud-sync" style="margin-right: 8px;"></span>
+          云同步设置
+        </div>
+        <button class="top-btn" onclick="closeSyncModal()">
+          <span class="iconify" data-icon="mdi:close"></span>
+        </button>
+      </div>
+      <div class="sync-body">
+        <div class="sync-status" id="syncStatus">
+          <div class="sync-status-icon" id="syncStatusIcon">
+            <span class="iconify" data-icon="mdi:cloud-off-outline"></span>
+          </div>
+          <div class="sync-status-text">
+            <div class="sync-status-title" id="syncStatusTitle">未配置同步</div>
+            <div class="sync-status-desc" id="syncStatusDesc">设置GitHub令牌以启用云同步</div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <label class="form-label">GitHub 个人访问令牌 (Token)</label>
+          <input type="password" id="githubToken" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+        </div>
+        
+        <div class="form-row">
+          <label class="form-label">仓库名称 (例如: my-desktop-data)</label>
+          <input type="text" id="githubRepo" class="form-input" placeholder="输入仓库名" />
+        </div>
+        
+        <div class="form-row">
+          <label class="form-label">数据文件名</label>
+          <input type="text" id="githubFileName" class="form-input" value="desktop_backup.json" readonly style="opacity: 0.7;" />
+        </div>
+        
+        <!-- 同步间隔选择 -->
+        <div class="sync-interval-row">
+          <span class="sync-interval-label">自动同步间隔</span>
+          <select id="syncIntervalSelect" class="sync-interval-select">
+            <option value="0">关闭</option>
+            <option value="1">每1天</option>
+            <option value="2">每2天</option>
+            <option value="3">每3天</option>
+            <option value="4">每4天</option>
+            <option value="5">每5天</option>
+            <option value="6">每6天</option>
+            <option value="7">每7天</option>
+          </select>
+        </div>
+        
+        <div class="form-row" style="display: flex; gap: 10px;">
+          <button class="form-btn success" style="flex: 1;" onclick="manualPushToGithub()">
+            <span class="iconify" data-icon="mdi:cloud-upload" style="margin-right: 4px;"></span>
+            上传到云端
+          </button>
+          <button class="form-btn primary" style="flex: 1;" onclick="manualPullFromGithub()">
+            <span class="iconify" data-icon="mdi:cloud-download" style="margin-right: 4px;"></span>
+            从云端恢复
+          </button>
+        </div>
+        
+        <div style="margin-top: 15px; text-align: center;">
+          <button class="form-btn" style="width: 100%;" onclick="testGithubConnection()">
+            <span class="iconify" data-icon="mdi:connection" style="margin-right: 4px;"></span>
+            测试连接
+          </button>
+        </div>
+        
+        <div class="last-sync-info" id="lastSyncInfo"></div>
+        <div class="next-sync-info" id="nextSyncInfo"></div>
+      </div>
+    </div>
+  </div>
+  <div class="wallpaper-modal" id="wallpaperModal" onclick="closeWallpaperModal()">
+    <div class="wallpaper-content" onclick="event.stopPropagation()">
+      <div class="wallpaper-header">
+        <div class="wallpaper-title">自定义壁纸</div>
+        <button class="top-btn" onclick="closeWallpaperModal()">
+          <span class="iconify" data-icon="mdi:close"></span>
+        </button>
+      </div>
+      <div class="wallpaper-body">
+        <div class="form-row">
+          <label class="form-label">图片URL</label>
+          <input id="wallpaperUrl" class="form-input" placeholder="https://... 或 /local.jpg" />
+        </div>
+        <input type="file" id="wallpaperFile" accept="image/*" style="display: none;" />
+      </div>
+      <div class="wallpaper-actions">
+        <button class="form-btn" id="wallpaperSelectBtn">选择</button>
+        <button class="form-btn" id="resetWallpaperBtn">恢复</button>
+        <button class="form-btn primary" id="applyWallpaperBtn">应用</button>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function() {
+  'use strict';
+  
+  // 预设搜索引擎
+  const PRESET_ENGINES = [
+    { id: 'preset-0', name: 'Google', icon: 'devicon:google', url: 'https://www.google.com/search?q=%s' },
+    { id: 'preset-1', name: 'Bing', icon: 'logos:bing', url: 'https://www.bing.com/search?q=%s' },
+    { id: 'preset-2', name: '百度', icon: 'simple-icons:baidu', url: 'https://www.baidu.com/s?wd=%s' },
+    { id: 'preset-3', name: 'DuckDuckGo', icon: 'logos:duckduckgo', url: 'https://duckduckgo.com/?q=%s' },
+    { id: 'preset-4', name: 'Yandex', icon: 'vscode-icons:file-type-yandex', url: 'https://yandex.com/search/?text=%s' }
+  ];
+  
+  const STORAGE_KEY = 'xs_desktop_final_v1';
+  const WALLPAPER_KEY = 'xs_custom_wallpaper';
+  const CUSTOM_ENGINES_KEY = 'xs_custom_engines';
+  const GITHUB_CONFIG_KEY = 'xs_github_config';
+  const LAST_SYNC_KEY = 'xs_last_sync';
+  const SEARCH_HISTORY_KEY = 'xs_search_history';
+  const DEFAULT_WALLPAPER_URL = 'https://gips3.baidu.com/it/u=1821127123,1149655687&fm=3028&app=3028&f=JPEG&fmt=auto?w=720&h=1280';
+  
+  // 搜索引擎数组（包含自定义）
+  let SEARCH_ENGINES = [...PRESET_ENGINES];
+  
+  const state = {
+    currentPage: 0,
+    currentQuote: '生活不是等待风暴过去，而是学会在雨中跳舞。',
+    layout: null,
+    folderModalId: null,
+    contextTarget: null,
+    formState: null,
+    desktop: { items: [] },
+    dock: { id: 'dock', capacity: 6, items: [] },
+    currentEngine: SEARCH_ENGINES[2],
+    suggestTimer: null,
+    suggestions: [],
+    searchScreenLock: false,
+    githubConfig: {
+      token: '',
+      owner: '',
+      repo: '',
+      syncInterval: 0, // 0表示关闭，1-7表示天数
+      lastSyncTime: null
+    }
+  };
+  
+  const dragState = {
+    active: false,
+    pointerId: null,
+    sourceType: null,
+    sourceEl: null,
+    itemId: null,
+    folderId: null,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    currentY: 0,
+    ghostEl: null,
+    lastMoveEvent: null,
+    longPressTimer: null,
+    autoPageTimer: null,
+    mergeTimer: null,
+    mergeTargetId: null,
+    overDelete: false,
+    contextTriggered: false,
+    originSnapshot: null
+  };
+  
+  const refs = {
+    root: null,
+    body: null,
+    desktop: null,
+    pagesContainer: null,
+    indicators: null,
+    dock: null,
+    deleteZone: null,
+    folderModal: null,
+    folderTitle: null,
+    folderGrid: null,
+    folderEmpty: null,
+    contextMenu: null,
+    ctxOpen: null,
+    ctxEdit: null,
+    ctxAdd: null,
+    ctxDelete: null,
+    ctxWallpaper: null,
+    formModal: null,
+    formTitle: null,
+    formName: null,
+    formUrl: null,
+    formIcon: null,
+    formUrlRow: null,
+    formIconRow: null,
+    formPreviewIcon: null,
+    formPreviewName: null,
+    formPreviewLink: null,
+    formSaveBtn: null,
+    wallpaperModal: null,
+    wallpaperUrl: null,
+    wallpaperFile: null,
+    quoteText: null,
+    quoteTextWrap: null,
+    searchScreen: null,
+    searchScreenInput: null,
+    searchScreenEngineIcon: null,
+    searchScreenEnginePanel: null,
+    searchScreenEngineList: null,
+    searchScreenBody: null,
+    searchCloseBtn: null,
+    engineFormModal: null,
+    engineFormName: null,
+    engineFormIcon: null,
+    engineFormUrl: null,
+    syncModal: null,
+    githubToken: null,
+    githubRepo: null,
+    syncIntervalSelect: null
+  };
+  
+  function $(selector, root = document) { return root.querySelector(selector); }
+  function $$(selector, root = document) { return Array.from(root.querySelectorAll(selector)); }
+  function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+  function deepClone(v) { return JSON.parse(JSON.stringify(v)); }
+  function debounce(fn, wait = 120) {
+    let t = null;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), wait);
+    };
+  }
+  function generateId(prefix = 'id') {
+    return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  }
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+  function showToast(message) {
+    if (!message) return;
+    const old = $('.__xs_toast__');
+    if (old) old.remove();
+    const toast = document.createElement('div');
+    toast.className = '__xs_toast__';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.style.opacity = '1');
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 260);
+    }, 1800);
+  }
+  window.showToast = showToast;
+  
+  function isImageIcon(value) {
+    if (!value) return false;
+    return /^(https?:\/\/|data:image\/|\.\/|\/)/i.test(value) || /\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/i.test(value);
+  }
+  
+  function renderIconContent(item) {
+  const icon = item.icon || '';
+  if (isImageIcon(icon)) {
+    return `<img class="custom-icon" src="${escapeHtml(icon)}" alt="" draggable="false">`; // 添加 draggable="false"
+  }
+  return `<span class="iconify" data-icon="${escapeHtml(icon || 'mdi:apps')}"></span>`;
+}
+  
+  function createApp(id, title, url, icon, bg) {
+    return {
+      id,
+      type: 'app',
+      title,
+      url,
+      icon,
+      bgStyle: bg ? `background:${bg};` : 'background:rgba(255,255,255,.12);'
+    };
+  }
+  
+  function createFolder(id, title, children = []) {
+    return {
+      id,
+      type: 'folder',
+      title,
+      children
+    };
+  }
+  
+  // 加载自定义搜索引擎
+  function loadCustomEngines() {
+    try {
+      const saved = localStorage.getItem(CUSTOM_ENGINES_KEY);
+      if (saved) {
+        const customEngines = JSON.parse(saved);
+        if (Array.isArray(customEngines)) {
+          SEARCH_ENGINES = [...PRESET_ENGINES, ...customEngines];
+        }
+      }
+    } catch (e) {
+      console.error('加载自定义搜索引擎失败:', e);
+    }
+  }
+  
+  // 保存自定义搜索引擎
+  function saveCustomEngines() {
+    const customEngines = SEARCH_ENGINES.filter(e => !e.id.startsWith('preset-'));
+    localStorage.setItem(CUSTOM_ENGINES_KEY, JSON.stringify(customEngines));
+  }
+  
+  // 添加自定义搜索引擎
+  function addCustomEngine(name, icon, url) {
+    const newEngine = {
+      id: generateId('engine'),
+      name,
+      icon: icon || 'mdi:magnify',
+      url: url.includes('%s') ? url : url + '%s'
+    };
+    SEARCH_ENGINES.push(newEngine);
+    saveCustomEngines();
+    return newEngine;
+  }
+  
+  // 删除自定义搜索引擎
+  function deleteCustomEngine(engineId) {
+    const index = SEARCH_ENGINES.findIndex(e => e.id === engineId);
+    if (index > -1 && !engineId.startsWith('preset-')) {
+      SEARCH_ENGINES.splice(index, 1);
+      saveCustomEngines();
+      // 如果当前使用的是被删除的引擎，切换到百度
+      if (state.currentEngine.id === engineId) {
+        state.currentEngine = SEARCH_ENGINES[2];
+        const iconEl = document.getElementById('engineIcon');
+        const searchIconEl = document.getElementById('searchScreenEngineIcon');
+        if (iconEl) iconEl.setAttribute('data-icon', state.currentEngine.icon);
+        if (searchIconEl) searchIconEl.setAttribute('data-icon', state.currentEngine.icon);
+        if (window.Iconify) {
+          try { 
+            Iconify.scan(iconEl); 
+            Iconify.scan(searchIconEl);
+          } catch (_) {}
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+  
+  // 加载GitHub配置
+  function loadGithubConfig() {
+    try {
+      const saved = localStorage.getItem(GITHUB_CONFIG_KEY);
+      if (saved) {
+        const config = JSON.parse(saved);
+        state.githubConfig = { ...state.githubConfig, ...config };
+      }
+    } catch (e) {
+      console.error('加载GitHub配置失败:', e);
+    }
+  }
+  
+  // 保存GitHub配置
+  function saveGithubConfig() {
+    localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(state.githubConfig));
+  }
+  
+  // 验证GitHub Token并获取所有者
+  async function validateGithubToken(token) {
+    if (!token) return null;
+    try {
+      const res = await fetch('https://api.github.com/user', {
+        headers: { 'Authorization': `token ${token}` }
+      });
+      if (!res.ok) throw new Error('Token无效或权限不足');
+      const user = await res.json();
+      state.githubConfig.token = token;
+      state.githubConfig.owner = user.login;
+      saveGithubConfig();
+      updateSyncStatus(true, `已验证 (${user.login})`);
+      showToast(`验证成功: ${user.login}`);
+      return user.login;
+    } catch (err) {
+      updateSyncStatus(false, err.message);
+      showToast('❌ ' + err.message);
+      return null;
+    }
+  }
+  
+  // 更新同步状态UI
+  function updateSyncStatus(connected, message) {
+    const icon = document.getElementById('syncStatusIcon');
+    const title = document.getElementById('syncStatusTitle');
+    const desc = document.getElementById('syncStatusDesc');
+    
+    if (connected) {
+      icon.className = 'sync-status-icon success';
+      icon.innerHTML = '<span class="iconify" data-icon="mdi:cloud-check"></span>';
+      title.textContent = '已连接';
+      desc.textContent = message || '云同步已就绪';
+    } else {
+      icon.className = 'sync-status-icon error';
+      icon.innerHTML = '<span class="iconify" data-icon="mdi:cloud-off-outline"></span>';
+      title.textContent = '未配置';
+      desc.textContent = message || '设置GitHub令牌以启用云同步';
+    }
+    
+    if (window.Iconify) {
+      try { Iconify.scan(icon); } catch (_) {}
+    }
+  }
+  
+  // 更新同步时间信息
+  function updateSyncTimeInfo() {
+    const lastSync = state.githubConfig.lastSyncTime;
+    const lastInfoEl = document.getElementById('lastSyncInfo');
+    const nextInfoEl = document.getElementById('nextSyncInfo');
+    
+    if (lastSync && lastInfoEl) {
+      const date = new Date(lastSync);
+      lastInfoEl.textContent = `上次同步: ${date.toLocaleString('zh-CN')}`;
+    } else if (lastInfoEl) {
+      lastInfoEl.textContent = '尚未进行同步';
+    }
+    
+    // 计算下次同步时间
+    if (nextInfoEl) {
+      const interval = parseInt(state.githubConfig.syncInterval) || 0;
+      if (interval > 0 && lastSync) {
+        const nextSync = new Date(lastSync);
+        nextSync.setDate(nextSync.getDate() + interval);
+        const now = new Date();
+        const diffHours = Math.round((nextSync - now) / (1000 * 60 * 60));
+        if (diffHours > 24) {
+          nextInfoEl.textContent = `预计下次同步: ${Math.ceil(diffHours / 24)}天后`;
+        } else if (diffHours > 0) {
+          nextInfoEl.textContent = `预计下次同步: ${diffHours}小时后`;
+        } else {
+          nextInfoEl.textContent = '预计下次同步: 即将进行';
+        }
+      } else if (interval > 0) {
+        nextInfoEl.textContent = '预计下次同步: 数据变更后';
+      } else {
+        nextInfoEl.textContent = '自动同步已关闭';
+      }
+    }
+  }
+  
+  // 检查是否需要自动同步
+  function checkAutoSyncNeeded() {
+    const interval = parseInt(state.githubConfig.syncInterval) || 0;
+    if (interval === 0) return false; // 关闭状态
+    if (!state.githubConfig.token || !state.githubConfig.owner) return false;
+    
+    const lastSync = state.githubConfig.lastSyncTime;
+    if (!lastSync) return true; // 从未同步过
+    
+    const lastDate = new Date(lastSync);
+    const now = new Date();
+    const diffDays = (now - lastDate) / (1000 * 60 * 60 * 24);
+    
+    return diffDays >= interval;
+  }
+  
+  // 触发自动同步
+  async function triggerAutoSync() {
+    if (checkAutoSyncNeeded()) {
+      showToast('正在自动同步到云端...');
+      await pushToGithub(false);
+    }
+  }
+  
+  // 测试GitHub连接
+  async function testGithubConnection() {
+    const token = document.getElementById('githubToken').value.trim();
+    const repo = document.getElementById('githubRepo').value.trim();
+    
+    if (!token) {
+      showToast('请输入GitHub Token');
+      return;
+    }
+    if (!repo) {
+      showToast('请输入仓库名称');
+      return;
+    }
+    
+    showToast('测试中...');
+    const owner = await validateGithubToken(token);
+    if (owner) {
+      // 测试仓库访问
+      try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+          headers: { 'Authorization': `token ${token}` }
+        });
+        if (res.ok) {
+          showToast('✅ 仓库可访问');
+          state.githubConfig.repo = repo;
+          saveGithubConfig();
+        } else if (res.status === 404) {
+          showToast('⚠️ 仓库不存在，同步时将自动创建');
+          state.githubConfig.repo = repo;
+          saveGithubConfig();
+        } else {
+          showToast('❌ 无法访问仓库: ' + res.statusText);
+        }
+      } catch (err) {
+        showToast('❌ 网络错误');
+      }
+    }
+  }
+  
+  // 上传到GitHub
+  async function pushToGithub(manual = false) {
+    if (!state.githubConfig.token || !state.githubConfig.owner) {
+      if (manual) showToast('请先完成配置并测试连接');
+      return false;
+    }
+    
+    const repo = state.githubConfig.repo || document.getElementById('githubRepo').value.trim();
+    if (!repo) {
+      if (manual) showToast('请输入仓库名称');
+      return false;
+    }
+    
+    const fileName = document.getElementById('githubFileName').value || 'desktop_backup.json';
+    const url = `https://api.github.com/repos/${state.githubConfig.owner}/${repo}/contents/${fileName}`;
+    
+    // 准备数据
+    const dataToUpload = {
+      version: '1.0',
+      timestamp: new Date().toISOString(),
+      desktop: state.desktop,
+      dock: state.dock,
+      currentPage: state.currentPage,
+      currentQuote: state.currentQuote,
+      currentEngineId: state.currentEngine.id,
+      customEngines: SEARCH_ENGINES.filter(e => !e.id.startsWith('preset-')),
+      wallpaper: localStorage.getItem(WALLPAPER_KEY)
+    };
+    
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataToUpload, null, 2))));
+    
+    try {
+      // 先尝试获取现有文件以获取sha
+      let sha = null;
+      try {
+        const getRes = await fetch(url, {
+          headers: { 'Authorization': `token ${state.githubConfig.token}` }
+        });
+        if (getRes.ok) {
+          const meta = await getRes.json();
+          sha = meta.sha;
+        }
+      } catch (e) {}
+      
+      const body = {
+        message: sha ? '更新桌面配置备份' : '创建桌面配置备份',
+        content: content,
+        ...(sha && { sha: sha })
+      };
+      
+      const putRes = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${state.githubConfig.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      
+      if (!putRes.ok) throw new Error(`上传失败 (${putRes.status})`);
+      
+      // 更新同步时间
+      state.githubConfig.lastSyncTime = new Date().toISOString();
+      state.githubConfig.repo = repo;
+      saveGithubConfig();
+      updateSyncTimeInfo();
+      
+      if (manual) showToast('✅ 已上传到云端');
+      return true;
+    } catch (err) {
+      if (manual) showToast('❌ 上传失败: ' + err.message);
+      return false;
+    }
+  }
+  
+  // 从GitHub下载
+  async function pullFromGithub() {
+    if (!state.githubConfig.token || !state.githubConfig.owner) {
+      showToast('请先完成配置');
+      return;
+    }
+    
+    const repo = state.githubConfig.repo || document.getElementById('githubRepo').value.trim();
+    if (!repo) {
+      showToast('请输入仓库名称');
+      return;
+    }
+    
+    const fileName = document.getElementById('githubFileName').value || 'desktop_backup.json';
+    const url = `https://api.github.com/repos/${state.githubConfig.owner}/${repo}/contents/${fileName}`;
+    
+    try {
+      showToast('正在从云端恢复...');
+      const res = await fetch(url, {
+        headers: { 'Authorization': `token ${state.githubConfig.token}` }
+      });
+      
+      if (!res.ok) throw new Error('云端文件不存在或无法访问');
+      
+      const meta = await res.json();
+      const content = decodeURIComponent(escape(atob(meta.content)));
+      const remoteData = JSON.parse(content);
+      
+      if (!remoteData.desktop || !remoteData.dock) {
+        throw new Error('数据格式错误');
+      }
+      
+      if (!confirm('从云端同步将覆盖本地所有数据，确定继续？')) return;
+      
+      // 恢复数据
+      state.desktop = remoteData.desktop;
+      state.dock = remoteData.dock;
+      state.currentPage = remoteData.currentPage || 0;
+      state.currentQuote = remoteData.currentQuote || state.currentQuote;
+      
+      // 恢复自定义搜索引擎
+      if (remoteData.customEngines && Array.isArray(remoteData.customEngines)) {
+        SEARCH_ENGINES = [...PRESET_ENGINES, ...remoteData.customEngines];
+        saveCustomEngines();
+      }
+      
+      // 恢复当前搜索引擎
+      if (remoteData.currentEngineId) {
+        const savedEngine = SEARCH_ENGINES.find(e => e.id === remoteData.currentEngineId);
+        if (savedEngine) {
+          state.currentEngine = savedEngine;
+          const iconEl = document.getElementById('engineIcon');
+          const searchIconEl = document.getElementById('searchScreenEngineIcon');
+          if (iconEl) iconEl.setAttribute('data-icon', savedEngine.icon);
+          if (searchIconEl) searchIconEl.setAttribute('data-icon', savedEngine.icon);
+        }
+      }
+      
+      // 恢复壁纸
+      if (remoteData.wallpaper && remoteData.wallpaper !== 'default') {
+        localStorage.setItem(WALLPAPER_KEY, remoteData.wallpaper);
+        const wallpaperEl = document.getElementById('wallpaperRoot');
+        wallpaperEl.style.background = `url("${remoteData.wallpaper}") center/cover no-repeat fixed`;
+        wallpaperEl.style.backgroundSize = 'cover';
+      }
+      
+      // 更新同步时间
+      state.githubConfig.lastSyncTime = new Date().toISOString();
+      state.githubConfig.repo = repo;
+      saveGithubConfig();
+      updateSyncTimeInfo();
+      
+      saveState();
+      renderAll();
+      
+      showToast('✅ 从云端恢复成功');
+    } catch (err) {
+      showToast('❌ 恢复失败: ' + err.message);
+    }
+  }
+  
+  // 搜索历史管理
+  function getSearchHistory() {
+    try {
+      const saved = localStorage.getItem(SEARCH_HISTORY_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  
+  function addSearchHistory(keyword) {
+    if (!keyword || keyword.trim().length === 0) return;
+    const history = getSearchHistory();
+    const trimmed = keyword.trim();
+    // 去重并移到顶部
+    const filtered = history.filter(h => h !== trimmed);
+    filtered.unshift(trimmed);
+    // 只保留最近20条
+    const limited = filtered.slice(0, 20);
+    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(limited));
+  }
+  
+  function clearSearchHistory() {
+  localStorage.removeItem(SEARCH_HISTORY_KEY);  
+  state.suggestions = [];
+  renderSuggestionsToBody([]);
+}
+window.clearSearchHistory = clearSearchHistory;
+
+  
+  function deleteSearchHistoryItem(keyword) {
+    const history = getSearchHistory();
+    const filtered = history.filter(h => h !== keyword);
+    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(filtered));
+  }
+  
+  function getDefaultData() {
+    return {
+      currentPage: 0,
+      currentQuote: '生活不是等待风暴过去，而是学会在雨中跳舞。',
+      desktop: {
+        items: [
+          createApp('app_baidu', '百度', 'https://www.baidu.com', 'simple-icons:baidu', 'linear-gradient(135deg,#4f86ff,#2f5fff)'),
+          createApp('app_bilibili', '哔哩哔哩', 'https://www.bilibili.com', 'ri:bilibili-fill', 'linear-gradient(135deg,#00c6ff,#0072ff)'),
+          createApp('app_github', 'GitHub', 'https://github.com', 'mdi:github', 'linear-gradient(135deg,#232526,#414345)'),
+          createApp('app_music', '网易云', 'https://music.163.com', 'mdi:music-note', 'linear-gradient(135deg,#ff4b2b,#ff416c)'),
+          createApp('app_map', '地图', 'https://ditu.amap.com', 'mdi:map-marker-radius', 'linear-gradient(135deg,#00b09b,#96c93d)'),
+          createApp('app_taobao', '淘宝', 'https://www.taobao.com', 'ri:shopping-bag-3-fill', 'linear-gradient(135deg,#ff7a18,#ffb347)'),
+          createApp('app_weather', '天气', 'https://tianqi.qq.com', 'mdi:weather-partly-cloudy', 'linear-gradient(135deg,#4facfe,#00f2fe)'),
+          createApp('app_mail', '邮箱', 'https://mail.qq.com', 'mdi:email-outline', 'linear-gradient(135deg,#667eea,#764ba2)'),
+          createApp('app_photos', '相册', 'https://image.baidu.com', 'mdi:image-multiple', 'linear-gradient(135deg,#f7971e,#ffd200)'),
+          createApp('app_notes', '笔记', 'https://note.youdao.com', 'mdi:notebook-outline', 'linear-gradient(135deg,#43cea2,#185a9d)'),
+          createApp('app_video', '视频', 'https://v.qq.com', 'mdi:play-circle-outline', 'linear-gradient(135deg,#fc4a1a,#f7b733)'),
+          createApp('app_docs', '文档', 'https://docs.qq.com', 'mdi:file-document-outline', 'linear-gradient(135deg,#11998e,#38ef7d)'),
+          createApp('app_jd', '京东', 'https://www.jd.com', 'mdi:cart-outline', 'linear-gradient(135deg,#ff5f6d,#ffc371)'),
+          createApp('app_calendar', '日历', 'https://calendar.google.com', 'mdi:calendar-month-outline', 'linear-gradient(135deg,#396afc,#2948ff)'),
+          createApp('app_clock', '时钟', 'https://time.is', 'mdi:clock-outline', 'linear-gradient(135deg,#1d4350,#a43931)'),
+          createApp('app_drive', '云盘', 'https://drive.google.com', 'mdi:cloud-upload-outline', 'linear-gradient(135deg,#56ab2f,#a8e063)'),
+          createApp('app_forum', '知乎', 'https://www.zhihu.com', 'mdi:forum-outline', 'linear-gradient(135deg,#2193b0,#6dd5ed)'),
+          createApp('app_design', '设计', 'https://www.canva.com', 'mdi:palette-outline', 'linear-gradient(135deg,#7f00ff,#e100ff)'),
+          createApp('app_book', '阅读', 'https://weread.qq.com', 'mdi:book-open-page-variant-outline', 'linear-gradient(135deg,#8e2de2,#4a00e0)'),
+          createApp('app_sync', '云同步', '#sync', 'mdi:cloud-sync', 'linear-gradient(135deg,#00c6ff,#0072ff)')
+        ]
+      },
+      dock: {
+        id: 'dock',
+        capacity: 6,
+        items: [
+          createApp('dock_phone', '电话', 'https://www.google.com/search?q=%E7%94%B5%E8%AF%9D', 'mdi:phone-outline', 'linear-gradient(135deg,#00c853,#43a047)'),
+          createApp('dock_message', '消息', 'https://mail.qq.com', 'mdi:message-outline', 'linear-gradient(135deg,#36d1dc,#5b86e5)'),
+          createApp('dock_browser', '浏览器', 'https://www.google.com', 'mdi:web', 'linear-gradient(135deg,#f7971e,#ffd200)'),
+          createApp('dock_album', '相册', 'https://image.baidu.com', 'mdi:image-outline', 'linear-gradient(135deg,#ff512f,#dd2476)')
+        ]
+      }
+    };
+  }
+  
+  function applyDefaultData() {
+    const defaults = getDefaultData();
+    state.currentPage = defaults.currentPage;
+    state.currentQuote = defaults.currentQuote;
+    state.desktop = defaults.desktop;
+    state.dock = defaults.dock;
+  }
+  
+  function saveState() {
+    const payload = {
+      currentPage: state.currentPage,
+      currentQuote: state.currentQuote,
+      desktop: state.desktop,
+      dock: state.dock,
+      currentEngineId: state.currentEngine.id
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    // 触发自动同步检查
+    triggerAutoSync();
+  }
+  
+  function loadState() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      applyDefaultData();
+      return;
+    }
+    try {
+      const data = JSON.parse(raw);
+      applyDefaultData();
+      if (typeof data.currentPage === 'number') state.currentPage = data.currentPage;
+      if (typeof data.currentQuote === 'string') state.currentQuote = data.currentQuote;
+      if (data.desktop?.items) state.desktop.items = data.desktop.items;
+      if (data.dock?.items) state.dock.items = data.dock.items;
+      if (data.currentEngineId) {
+        const savedEngine = SEARCH_ENGINES.find(e => e.id === data.currentEngineId);
+        if (savedEngine) state.currentEngine = savedEngine;
+      }
+    } catch (e) {
+      applyDefaultData();
+    }
+  }
+  
+  function resolveRefs() {
+    refs.root = document.documentElement;
+    refs.body = document.body;
+    refs.desktop = $('#desktop');
+    refs.pagesContainer = $('#pagesContainer');
+    refs.indicators = $('#pageIndicators');
+    refs.dock = $('#dock');
+    refs.deleteZone = $('#deleteZone');
+    refs.folderModal = $('#folderModal');
+    refs.folderTitle = $('#folderTitle');
+    refs.folderGrid = $('#folderGrid');
+    refs.folderEmpty = $('#folderEmpty');
+    refs.contextMenu = $('#contextMenu');
+    refs.ctxOpen = $('#ctxOpen');
+    refs.ctxEdit = $('#ctxEdit');
+    refs.ctxAdd = $('#ctxAdd');
+    refs.ctxDelete = $('#ctxDelete');
+    refs.ctxWallpaper = $('#ctxWallpaper');
+    refs.formModal = $('#formModal');
+    refs.formTitle = $('#formTitle');
+    refs.formName = $('#formName');
+    refs.formUrl = $('#formUrl');
+    refs.formIcon = $('#formIcon');
+    refs.formUrlRow = $('#formUrlRow');
+    refs.formIconRow = $('#formIconRow');
+    refs.formPreviewIcon = $('#formPreviewIcon');
+    refs.formPreviewName = $('#formPreviewName');
+    refs.formPreviewLink = $('#formPreviewLink');
+    refs.formSaveBtn = $('#formSaveBtn');
+    refs.wallpaperModal = $('#wallpaperModal');
+    refs.wallpaperUrl = $('#wallpaperUrl');
+    refs.wallpaperFile = $('#wallpaperFile');
+    refs.quoteText = $('#quoteDisplay');
+    refs.quoteTextWrap = $('.quote-text-wrap');
+    refs.searchScreen = $('#searchScreen');
+    refs.searchScreenInput = $('#searchScreenInput');
+    refs.searchScreenEngineIcon = $('#searchScreenEngineIcon');
+    refs.searchScreenEnginePanel = $('#searchScreenEnginePanel');
+    refs.searchScreenEngineList = $('#searchScreenEngineList');
+    refs.searchScreenBody = $('#searchScreenBody');
+    refs.searchCloseBtn = $('#searchCloseBtn');
+    refs.engineFormModal = $('#engineFormModal');
+    refs.engineFormName = $('#engineFormName');
+    refs.engineFormIcon = $('#engineFormIcon');
+    refs.engineFormUrl = $('#engineFormUrl');
+    refs.syncModal = $('#syncModal');
+    refs.githubToken = $('#githubToken');
+    refs.githubRepo = $('#githubRepo');
+    refs.syncIntervalSelect = $('#syncIntervalSelect');
+  }
+  
+  function calcLayoutMetrics() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const header = $('.header-section');
+    const headerHeight = header ? header.getBoundingClientRect().height : Math.round(vh * 0.22);
+    const dockHeight = refs.dock ? refs.dock.getBoundingClientRect().height : 72;
+    let columns;
+    if (vw < 480) columns = 4;
+    else if (vw < 768) columns = 5;
+    else if (vw < 1024) columns = 7;
+    else columns = 9;
+    const pagePaddingX = vw < 480 ? 18 : vw < 768 ? 20 : vw < 1024 ? 30 : 40;
+    const pagePaddingBottom = vw < 768 ? 30 : 36;
+    const desktopHeight = Math.max(220, vh - headerHeight - dockHeight - 12);
+    const availableWidth = Math.max(200, vw - pagePaddingX * 2);
+    const availableHeight = Math.max(180, desktopHeight - pagePaddingBottom);
+    let iconSizeByWidth = Math.floor(availableWidth / columns / 1.24);
+    let iconSizeByHeight = Math.floor(availableHeight / 6 / 1.42);
+    let iconSize = clamp(Math.min(iconSizeByWidth, iconSizeByHeight), 46, 84);
+    const labelHeight = vw < 768 ? 20 : 22;
+    let cellHeight = iconSize + labelHeight + 8;
+    let colGap = clamp(Math.round(iconSize * 0.24), 8, 20);
+    let rowGap = clamp(Math.round(iconSize * 0.30), 12, 24);
+    let rows = Math.max(1, Math.floor((availableHeight + rowGap) / (cellHeight + rowGap)));
+    const remainder = availableHeight - rows * (cellHeight + rowGap) + rowGap;
+    if (remainder > (cellHeight + rowGap) * 0.45 && rows < 8) {
+      rows++;
+    }
+    if (rows >= 6 && iconSize < 72 && availableHeight > (rows + 1) * (cellHeight + rowGap)) {
+      iconSize = Math.min(84, iconSize + 4);
+      cellHeight = iconSize + labelHeight + 8;
+      rowGap = clamp(Math.round(iconSize * 0.30), 12, 24);
+      rows = Math.max(1, Math.floor((availableHeight + rowGap) / (cellHeight + rowGap)));
+    }
+    const pageCapacity = rows * columns;
+    return {
+      viewportWidth: vw,
+      viewportHeight: vh,
+      columns,
+      rows,
+      pagePaddingX,
+      pagePaddingBottom,
+      iconSize,
+      labelHeight,
+      cellWidth: iconSize,
+      cellHeight,
+      colGap,
+      rowGap,
+      pageCapacity
+    };
+  }
+  
+  function applyLayoutMetrics(layout) {
+    refs.root.style.setProperty('--grid-columns', layout.columns);
+    refs.root.style.setProperty('--icon-size', `${layout.iconSize}px`);
+    refs.root.style.setProperty('--grid-gap', `${layout.rowGap}px ${layout.colGap}px`);
+    refs.root.style.setProperty('--page-padding', `0 ${layout.pagePaddingX}px ${layout.pagePaddingBottom}px`);
+  }
+  
+  function getDesktopPagesData() {
+    const pages = [];
+    const cap = state.layout.pageCapacity;
+    for (let i = 0; i < state.desktop.items.length; i += cap) {
+      pages.push(state.desktop.items.slice(i, i + cap));
+    }
+    if (!pages.length) pages.push([]);
+    return pages;
+  }
+  
+  function getPageCount() {
+    return getDesktopPagesData().length;
+  }
+  
+  function clampCurrentPage() {
+    state.currentPage = clamp(state.currentPage, 0, Math.max(0, getPageCount() - 1));
+  }
+  
+  function renderFolderPreview(folderItem) {
+    const preview = folderItem.children.slice(0, 4);
+    const cells = [];
+    for (let i = 0; i < 4; i++) {
+      const child = preview[i];
+      cells.push(`
+        <div class="folder-preview-cell" style="${child?.bgStyle || 'background:rgba(255,255,255,.08);'}">
+          ${child ? renderIconContent(child) : ''}
+        </div>
+      `);
+    }
+    return `<div class="folder-preview">${cells.join('')}</div>`;
+  }
+  
+  function renderDesktopItem(item, pageIndex, localIndex) {
+    if (item.type === 'folder') {
+      return `
+        <div class="app-icon" data-id="${item.id}" data-scope="desktop" data-item-type="folder" data-page-index="${pageIndex}" data-local-index="${localIndex}">
+          <div class="icon-bg" style="background:rgba(255,255,255,.18);">
+            ${renderFolderPreview(item)}
+          </div>
+          <div class="icon-label">${escapeHtml(item.title || '文件夹')}</div>
+        </div>
+      `;
+    }
+    return `
+      <div class="app-icon" data-id="${item.id}" data-scope="desktop" data-item-type="app" data-page-index="${pageIndex}" data-local-index="${localIndex}">
+        <div class="icon-bg" style="${item.bgStyle || ''}">
+          ${renderIconContent(item)}
+        </div>
+        <div class="icon-label">${escapeHtml(item.title || '')}</div>
+      </div>
+    `;
+  }
+  
+  function renderDockItem(item, index) {
+    if (item.type === 'folder') return '';
+    return `
+      <div class="app-icon" data-id="${item.id}" data-scope="dock" data-item-type="app" data-local-index="${index}">
+        <div class="icon-bg" style="${item.bgStyle || ''}">
+          ${renderIconContent(item)}
+        </div>
+        <div class="icon-label">${escapeHtml(item.title || '')}</div>
+      </div>
+    `;
+  }
+  
+  function renderFolderChild(item, index, folderId) {
+    return `
+      <div class="app-icon" data-id="${item.id}" data-scope="folder" data-folder-id="${folderId}" data-child-index="${index}">
+        <div class="icon-bg" style="${item.bgStyle || ''}">
+          ${renderIconContent(item)}
+        </div>
+        <div class="icon-label">${escapeHtml(item.title || '')}</div>
+      </div>
+    `;
+  }
+  
+  function renderPages() {
+    const pages = getDesktopPagesData();
+    refs.pagesContainer.innerHTML = pages.map((items, pageIndex) => `
+      <div class="page" data-page-index="${pageIndex}">
+        ${items.map((item, localIndex) => renderDesktopItem(item, pageIndex, localIndex)).join('')}
+      </div>
+    `).join('');
+    renderIndicators();
+    updatePagesTransform(false);
+  }
+  
+  function renderDock() {
+    refs.dock.innerHTML = state.dock.items.map((item, i) => renderDockItem(item, i)).join('');
+  }
+  
+  function renderIndicators() {
+    refs.indicators.innerHTML = Array.from({ length: getPageCount() }).map((_, i) => {
+      return `<span class="indicator-dot ${i === state.currentPage ? 'active' : ''}" data-page="${i}"></span>`;
+    }).join('');
+  }
+  
+  function updatePageClasses() {
+    $$('.page', refs.pagesContainer).forEach((page, i) => {
+      page.classList.toggle('page-current', i === state.currentPage);
+      page.classList.toggle('page-prev', i === state.currentPage - 1);
+      page.classList.toggle('page-next', i === state.currentPage + 1);
+    });
+  }
+  
+  function updatePagesTransform(withTransition = true) {
+    refs.pagesContainer.style.transition = withTransition
+      ? 'transform .42s cubic-bezier(.22,.88,.24,1)'
+      : 'none';
+    refs.pagesContainer.style.transform = `translate3d(-${state.currentPage * window.innerWidth}px,0,0)`;
+    $$('.indicator-dot', refs.indicators).forEach((dot, i) => {
+      dot.classList.toggle('active', i === state.currentPage);
+    });
+    updatePageClasses();
+  }
+  
+  function renderFolderModal() {
+    if (!state.folderModalId) {
+      refs.folderModal.classList.remove('active');
+      refs.folderGrid.innerHTML = '';
+      return;
+    }
+    const folder = state.desktop.items.find(i => i.id === state.folderModalId && i.type === 'folder');
+    if (!folder) {
+      state.folderModalId = null;
+      refs.folderModal.classList.remove('active');
+      refs.folderGrid.innerHTML = '';
+      return;
+    }
+    refs.folderTitle.textContent = folder.title || '文件夹';
+    refs.folderGrid.innerHTML = folder.children.map((child, index) => renderFolderChild(child, index, folder.id)).join('');
+    refs.folderEmpty.style.display = folder.children.length ? 'none' : 'block';
+    refs.folderModal.classList.add('active');
+  }
+  
+  function renderAll() {
+    clampCurrentPage();
+    renderPages();
+    renderDock();
+    renderFolderModal();
+    clearMergeHover();
+    if (window.Iconify) {
+      try { Iconify.scan(document.body); } catch (_) {}
+    }
+    saveState();
+  }
+  
+  function getItemById(id) {
+    let item = state.desktop.items.find(i => i.id === id);
+    if (item) return item;
+    item = state.dock.items.find(i => i.id === id);
+    if (item) return item;
+    for (const top of state.desktop.items) {
+      if (top.type === 'folder') {
+        const child = top.children.find(c => c.id === id);
+        if (child) return child;
+      }
+    }
+    return null;
+  }
+  
+  function findDesktopIndexById(id) {
+    return state.desktop.items.findIndex(i => i.id === id);
+  }
+  
+  function findDockIndexById(id) {
+    return state.dock.items.findIndex(i => i.id === id);
+  }
+  
+  function findFolderById(folderId) {
+    return state.desktop.items.find(i => i.id === folderId && i.type === 'folder') || null;
+  }
+  
+  function locateItem(id) {
+    const desktopIndex = findDesktopIndexById(id);
+    if (desktopIndex >= 0) {
+      return {
+        scope: 'desktop',
+        globalIndex: desktopIndex,
+        pageIndex: Math.floor(desktopIndex / state.layout.pageCapacity),
+        localIndex: desktopIndex % state.layout.pageCapacity
+      };
+    }
+    const dockIndex = findDockIndexById(id);
+    if (dockIndex >= 0) {
+      return {
+        scope: 'dock',
+        index: dockIndex
+      };
+    }
+    for (const item of state.desktop.items) {
+      if (item.type === 'folder') {
+        const childIndex = item.children.findIndex(c => c.id === id);
+        if (childIndex >= 0) {
+          return {
+            scope: 'folder',
+            folderId: item.id,
+            index: childIndex
+          };
+        }
+      }
+    }
+    return null;
+  }
+  
+  function cleanupFolders() {
+    state.desktop.items = state.desktop.items.flatMap(item => {
+      if (item.type !== 'folder') return [item];
+      if (item.children.length === 0) return [];
+      if (item.children.length === 1) return [item.children[0]];
+      return [item];
+    });
+    if (state.folderModalId) {
+      const folder = findFolderById(state.folderModalId);
+      if (!folder) state.folderModalId = null;
+    }
+  }
+  
+  function removeItemByLocation(loc) {
+    if (!loc) return null;
+    if (loc.scope === 'desktop') {
+      return state.desktop.items.splice(loc.globalIndex, 1)[0] || null;
+    }
+    if (loc.scope === 'dock') {
+      return state.dock.items.splice(loc.index, 1)[0] || null;
+    }
+    if (loc.scope === 'folder') {
+      const folder = findFolderById(loc.folderId);
+      if (!folder) return null;
+      return folder.children.splice(loc.index, 1)[0] || null;
+    }
+    return null;
+  }
+  
+  function insertDesktopItem(item, globalIndex) {
+    const index = clamp(globalIndex, 0, state.desktop.items.length);
+    state.desktop.items.splice(index, 0, item);
+  }
+  
+  function insertDockItem(item, index) {
+    if (!item || item.type === 'folder') return false;
+    const i = clamp(index, 0, state.dock.items.length);
+    state.dock.items.splice(i, 0, item);
+    if (state.dock.items.length > state.dock.capacity) {
+      const overflow = state.dock.items.pop();
+      if (overflow) state.desktop.items.push(overflow);
+    }
+    return true;
+  }
+  
+  function insertFolderChild(folderId, item, index) {
+    const folder = findFolderById(folderId);
+    if (!folder) return;
+    folder.children.splice(clamp(index, 0, folder.children.length), 0, item);
+  }
+  
+  function arrayMove(arr, from, to) {
+    if (from === to || from < 0 || from >= arr.length) return arr.slice();
+    const copy = arr.slice();
+    const [item] = copy.splice(from, 1);
+    copy.splice(clamp(to, 0, copy.length), 0, item);
+    return copy;
+  }
+  
+  function captureRects() {
+    const map = new Map();
+    $$('.app-icon[data-id]').forEach(el => {
+      map.set(el.dataset.id, el.getBoundingClientRect());
+    });
+    return map;
+  }
+  
+  function playFLIP(prevRects) {
+    $$('.app-icon[data-id]').forEach(el => {
+      const id = el.dataset.id;
+      const prev = prevRects.get(id);
+      if (!prev) return;
+      const next = el.getBoundingClientRect();
+      const dx = prev.left - next.left;
+      const dy = prev.top - next.top;
+      if (dx || dy) {
+        el.style.transition = 'none';
+        el.style.transform = `translate(${dx}px, ${dy}px)`;
+        requestAnimationFrame(() => {
+          el.style.transition = 'transform 230ms cubic-bezier(.2,.8,.2,1)';
+          el.style.transform = '';
+        });
+      }
+    });
+  }
+  
+  function updateWithAnimation(mutator) {
+    const prev = captureRects();
+    mutator();
+    renderAll();
+    requestAnimationFrame(() => playFLIP(prev));
+  }
+  
+  function buildPageSlots(pageEl, pageIndex) {
+    const rect = pageEl.getBoundingClientRect();
+    const layout = state.layout;
+    const pageItems = getDesktopPagesData()[pageIndex] || [];
+    const capacity = layout.pageCapacity;
+    const usableWidth = rect.width - layout.pagePaddingX * 2;
+    const totalGridWidth = layout.columns * layout.cellWidth + (layout.columns - 1) * layout.colGap;
+    const startX = rect.left + layout.pagePaddingX + (usableWidth - totalGridWidth) / 2;
+    const startY = rect.top + 8;
+    const slots = [];
+    const count = Math.min(capacity, Math.max(pageItems.length + 1, 1));
+    for (let i = 0; i < count; i++) {
+      const row = Math.floor(i / layout.columns);
+      const col = i % layout.columns;
+      const left = startX + col * (layout.cellWidth + layout.colGap);
+      const top = startY + row * (layout.cellHeight + layout.rowGap);
+      slots.push({
+        scope: 'desktop',
+        pageIndex,
+        localIndex: i,
+        globalIndex: pageIndex * layout.pageCapacity + i,
+        centerX: left + layout.cellWidth / 2,
+        centerY: top + layout.cellHeight / 2
+      });
+    }
+    return slots;
+  }
+  
+  function buildDockSlots() {
+    const rect = refs.dock.getBoundingClientRect();
+    const count = Math.min(state.dock.capacity, Math.max(state.dock.items.length + 1, 1));
+    const slotWidth = rect.width / Math.max(1, state.dock.capacity || count);
+    const slots = [];
+    for (let i = 0; i < count; i++) {
+      const left = rect.left + i * slotWidth;
+      slots.push({
+        scope: 'dock',
+        index: i,
+        centerX: left + slotWidth / 2,
+        centerY: rect.top + rect.height / 2
+      });
+    }
+    return slots;
+  }
+  
+  function buildFolderSlots() {
+    const children = $$('.app-icon[data-scope="folder"]', refs.folderGrid);
+    if (!children.length) {
+      const rect = refs.folderGrid.getBoundingClientRect();
+      return [{
+        scope: 'folder',
+        index: 0,
+        centerX: rect.left + rect.width / 2,
+        centerY: rect.top + Math.min(60, rect.height / 2)
+      }];
+    }
+    const slots = children.map((el, index) => {
+      const r = el.getBoundingClientRect();
+      return {
+        scope: 'folder',
+        index,
+        centerX: r.left + r.width / 2,
+        centerY: r.top + r.height / 2
+      };
+    });
+    const last = children[children.length - 1].getBoundingClientRect();
+    slots.push({
+      scope: 'folder',
+      index: children.length,
+      centerX: last.left + last.width / 2,
+      centerY: last.top + last.height / 2
+    });
+    return slots;
+  }
+  
+  function getNearestSlot(x, y, slots) {
+    let nearest = null;
+    let min = Infinity;
+    for (const slot of slots) {
+      const dx = x - slot.centerX;
+      const dy = y - slot.centerY;
+      const dist = dx * dx + dy * dy;
+      if (dist < min) {
+        min = dist;
+        nearest = slot;
+      }
+    }
+    return nearest;
+  }
+  
+  function getDroppableDesktopOrDock(x, y) {
+    const pages = $$('.page', refs.pagesContainer);
+    for (const page of pages) {
+      const r = page.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
+        return { type: 'desktop', el: page, pageIndex: Number(page.dataset.pageIndex) || 0 };
+      }
+    }
+    const dockRect = refs.dock.getBoundingClientRect();
+    if (x >= dockRect.left && x <= dockRect.right && y >= dockRect.top && y <= dockRect.bottom) {
+      return { type: 'dock', el: refs.dock };
+    }
+    return null;
+  }
+  
+  function getMergeHoverTarget(x, y, excludeId) {
+    const els = $$('.page .app-icon[data-id]');
+    for (const el of els) {
+      if (el.dataset.id === excludeId) continue;
+      const rect = el.getBoundingClientRect();
+      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+        return el;
+      }
+    }
+    return null;
+  }
+  
+  function clearMergeHover() {
+    $$('.merge-hover').forEach(el => el.classList.remove('merge-hover'));
+  }
+  
+  function clearMergeCandidate() {
+    if (dragState.mergeTimer) {
+      clearTimeout(dragState.mergeTimer);
+      dragState.mergeTimer = null;
+    }
+    dragState.mergeTargetId = null;
+    clearMergeHover();
+  }
+  
+  function canMerge(dragId, targetId) {
+    if (!dragId || !targetId || dragId === targetId) return false;
+    const dragItem = getItemById(dragId);
+    const targetItem = getItemById(targetId);
+    if (!dragItem || !targetItem) return false;
+    if (dragItem.type === 'folder') return false;
+    if (findDockIndexById(targetId) >= 0) return false;
+    return targetItem.type === 'app' || targetItem.type === 'folder';
+  }
+  
+  function queueMergeTarget(targetId) {
+    if (dragState.mergeTargetId === targetId) return;
+    clearMergeCandidate();
+    dragState.mergeTimer = setTimeout(() => {
+      dragState.mergeTargetId = targetId;
+      const targetEl = document.querySelector(`.page .app-icon[data-id="${CSS.escape(targetId)}"]`);
+      clearMergeHover();
+      if (targetEl) targetEl.classList.add('merge-hover');
+    }, 220);
+  }
+  
+  function mergeItems(dragId, targetId) {
+    const dragLoc = locateItem(dragId);
+    if (!dragLoc) return false;
+    const dragItem = removeItemByLocation(dragLoc);
+    if (!dragItem) return false;
+    const targetIndex = findDesktopIndexById(targetId);
+    if (targetIndex < 0) return false;
+    const targetItem = state.desktop.items[targetIndex];
+    if (targetItem.type === 'folder') {
+      targetItem.children.push(dragItem);
+      return true;
+    }
+    const nextFolder = createFolder(generateId('folder'), '文件夹', [targetItem, dragItem]);
+    state.desktop.items.splice(targetIndex, 1, nextFolder);
+    return true;
+  }
+  
+  function setDeleteZoneVisible(visible) {
+    refs.deleteZone.classList.toggle('active', !!visible);
+  }
+  
+  function setDeleteZoneHover(hover) {
+    dragState.overDelete = !!hover;
+    refs.deleteZone.classList.toggle('hover', !!hover);
+  }
+  
+  function isOverDeleteZone(x, y) {
+    const r = refs.deleteZone.getBoundingClientRect();
+    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+  }
+  
+  function deleteItemById(id) {
+    const loc = locateItem(id);
+    if (!loc) return false;
+    removeItemByLocation(loc);
+    cleanupFolders();
+    renderAll();
+    return true;
+  }
+  
+  function beginDrag(sourceEl, sourceType, e) {
+    hideContextMenu();
+    dragState.active = true;
+    dragState.pointerId = e.pointerId;
+    dragState.sourceType = sourceType;
+    dragState.sourceEl = sourceEl;
+    dragState.itemId = sourceEl.dataset.id;
+    dragState.folderId = sourceEl.dataset.folderId || null;
+    dragState.originSnapshot = {
+      desktop: deepClone(state.desktop.items),
+      dock: deepClone(state.dock.items),
+      currentPage: state.currentPage,
+      folderModalId: state.folderModalId
+    };
+    sourceEl.classList.add('drag-source');
+    dragState.ghostEl = createGhost(sourceEl);
+    updateGhostPosition(e.clientX, e.clientY);
+    setDeleteZoneVisible(true);
+    if (sourceType === 'folder') {
+      closeFolder();
+    }
+  }
+  
+  function createGhost(el) {
+    const rect = el.getBoundingClientRect();
+    const wrap = document.createElement('div');
+    wrap.className = 'drag-ghost';
+    wrap.style.width = `${rect.width}px`;
+    wrap.style.height = `${rect.height}px`;
+    const clone = el.cloneNode(true);
+    clone.classList.remove('drag-source');
+    wrap.appendChild(clone);
+    document.body.appendChild(wrap);
+    return wrap;
+  }
+  
+  function updateGhostPosition(x, y) {
+    if (!dragState.ghostEl) return;
+    dragState.ghostEl.style.transform = `translate3d(${x - 28}px, ${y - 18}px, 0)`;
+  }
+  
+  function clearGhost() {
+    if (dragState.ghostEl) {
+      dragState.ghostEl.remove();
+      dragState.ghostEl = null;
+    }
+  }
+  
+  function clearTimers() {
+    if (dragState.longPressTimer) {
+      clearTimeout(dragState.longPressTimer);
+      dragState.longPressTimer = null;
+    }
+    if (dragState.autoPageTimer) {
+      clearTimeout(dragState.autoPageTimer);
+      dragState.autoPageTimer = null;
+    }
+    if (dragState.mergeTimer) {
+      clearTimeout(dragState.mergeTimer);
+      dragState.mergeTimer = null;
+    }
+  }
+  
+  function resetDragState() {
+    clearTimers();
+    clearMergeCandidate();
+    setDeleteZoneVisible(false);
+    setDeleteZoneHover(false);
+    if (dragState.sourceEl) dragState.sourceEl.classList.remove('drag-source');
+    clearGhost();
+    $$('.drag-target').forEach(el => el.classList.remove('drag-target'));
+    dragState.active = false;
+    dragState.pointerId = null;
+    dragState.sourceType = null;
+    dragState.sourceEl = null;
+    dragState.itemId = null;
+    dragState.folderId = null;
+    dragState.lastMoveEvent = null;
+    dragState.contextTriggered = false;
+    dragState.originSnapshot = null;
+  }
+  
+  function moveDesktopToDesktop(fromGlobal, toGlobal) {
+    state.desktop.items = arrayMove(state.desktop.items, fromGlobal, toGlobal);
+  }
+  
+  function moveDockToDock(fromIndex, toIndex) {
+    state.dock.items = arrayMove(state.dock.items, fromIndex, toIndex);
+  }
+  
+  function moveDesktopToDock(fromGlobal, dockIndex) {
+    const item = state.desktop.items[fromGlobal];
+    if (!item || item.type === 'folder') {
+      showToast('文件夹暂不支持放入 Dock');
+      return;
+    }
+    const [moved] = state.desktop.items.splice(fromGlobal, 1);
+    insertDockItem(moved, dockIndex);
+  }
+  
+  function moveDockToDesktop(fromDockIndex, desktopGlobalIndex) {
+    const [moved] = state.dock.items.splice(fromDockIndex, 1);
+    if (!moved) return;
+    insertDesktopItem(moved, desktopGlobalIndex);
+  }
+  
+  function reorderFolderChild(folderId, fromIndex, toIndex) {
+    const folder = findFolderById(folderId);
+    if (!folder) return;
+    folder.children = arrayMove(folder.children, fromIndex, toIndex);
+  }
+  
+  function moveFolderChildToDesktop(folderId, childIndex, desktopGlobalIndex) {
+    const folder = findFolderById(folderId);
+    if (!folder) return;
+    const [moved] = folder.children.splice(childIndex, 1);
+    if (!moved) return;
+    insertDesktopItem(moved, desktopGlobalIndex);
+    cleanupFolders();
+  }
+  
+  function applyProjection(target) {
+    const current = locateItem(dragState.itemId);
+    if (!current) return;
+    if (current.scope === 'desktop' && target.scope === 'desktop') {
+      if (current.globalIndex === target.globalIndex) return;
+      moveDesktopToDesktop(current.globalIndex, target.globalIndex);
+      return;
+    }
+    if (current.scope === 'dock' && target.scope === 'dock') {
+      if (current.index === target.index) return;
+      moveDockToDock(current.index, target.index);
+      return;
+    }
+    if (current.scope === 'desktop' && target.scope === 'dock') {
+      moveDesktopToDock(current.globalIndex, target.index);
+      return;
+    }
+    if (current.scope === 'dock' && target.scope === 'desktop') {
+      moveDockToDesktop(current.index, target.globalIndex);
+      return;
+    }
+    if (current.scope === 'folder' && target.scope === 'folder') {
+      if (current.folderId !== target.folderId) return;
+      if (current.index === target.index) return;
+      reorderFolderChild(current.folderId, current.index, target.index);
+      return;
+    }
+    if (current.scope === 'folder' && target.scope === 'desktop') {
+      moveFolderChildToDesktop(current.folderId, current.index, target.globalIndex);
+      return;
+    }
+  }
+  
+  function schedulePageTurn(direction) {
+    if (dragState.autoPageTimer) return;
+    dragState.autoPageTimer = setTimeout(() => {
+      dragState.autoPageTimer = null;
+      const next = state.currentPage + direction;
+      if (next < 0 || next >= getPageCount()) return;
+      state.currentPage = next;
+      updatePagesTransform(true);
+      saveState();
+      setTimeout(() => {
+        if (dragState.active && dragState.lastMoveEvent) processDragMove(dragState.lastMoveEvent);
+      }, 70);
+    }, 260);
+  }
+  
+  function cancelPageTurn() {
+    if (dragState.autoPageTimer) {
+      clearTimeout(dragState.autoPageTimer);
+      dragState.autoPageTimer = null;
+    }
+  }
+  
+  function checkAutoPageTurn(clientX) {
+    const edge = 34;
+    const vw = window.innerWidth;
+    if (getPageCount() <= 1) {
+      cancelPageTurn();
+      return;
+    }
+    if (clientX < edge && state.currentPage > 0) {
+      schedulePageTurn(-1);
+    } else if (clientX > vw - edge && state.currentPage < getPageCount() - 1) {
+      schedulePageTurn(1);
+    } else {
+      cancelPageTurn();
+    }
+  }
+  
+  function processDragMove(e) {
+    if (!dragState.active) return;
+    dragState.lastMoveEvent = e;
+    dragState.currentX = e.clientX;
+    dragState.currentY = e.clientY;
+    updateGhostPosition(e.clientX, e.clientY);
+    const overDelete = isOverDeleteZone(e.clientX, e.clientY);
+    setDeleteZoneHover(overDelete);
+    $$('.drag-target').forEach(el => el.classList.remove('drag-target'));
+    if (dragState.sourceType !== 'folder') {
+      const mergeEl = getMergeHoverTarget(e.clientX, e.clientY, dragState.itemId);
+      if (mergeEl && canMerge(dragState.itemId, mergeEl.dataset.id) && !overDelete) {
+        queueMergeTarget(mergeEl.dataset.id);
+      } else {
+        clearMergeCandidate();
+      }
+    } else {
+      clearMergeCandidate();
+    }
+    if (dragState.sourceType === 'folder') {
+      const gridRect = refs.folderGrid.getBoundingClientRect();
+      const insideFolderGrid =
+        state.folderModalId &&
+        e.clientX >= gridRect.left &&
+        e.clientX <= gridRect.right &&
+        e.clientY >= gridRect.top &&
+        e.clientY <= gridRect.bottom;
+      if (insideFolderGrid && findFolderById(state.folderModalId)) {
+        refs.folderGrid.classList.add('drag-target');
+        const slots = buildFolderSlots();
+        const nearest = getNearestSlot(e.clientX, e.clientY, slots);
+        if (nearest) {
+          updateWithAnimation(() => {
+            applyProjection({
+              scope: 'folder',
+              folderId: state.folderModalId,
+              index: nearest.index
+            });
+          });
+        }
+      } else if (!overDelete) {
+        const target = getDroppableDesktopOrDock(e.clientX, e.clientY);
+        if (target?.type === 'desktop') {
+          target.el.classList.add('drag-target');
+          const slots = buildPageSlots(target.el, target.pageIndex);
+          const nearest = getNearestSlot(e.clientX, e.clientY, slots);
+          if (nearest) {
+            updateWithAnimation(() => {
+              applyProjection({
+                scope: 'desktop',
+                globalIndex: nearest.globalIndex
+              });
+            });
+          }
+        }
+      }
+      checkAutoPageTurn(e.clientX);
+      return;
+    }
+    if (overDelete) {
+      checkAutoPageTurn(e.clientX);
+      return;
+    }
+    const target = getDroppableDesktopOrDock(e.clientX, e.clientY);
+    if (!target) {
+      checkAutoPageTurn(e.clientX);
+      return;
+    }
+    target.el.classList.add('drag-target');
+    if (target.type === 'desktop') {
+      const slots = buildPageSlots(target.el, target.pageIndex);
+      const nearest = getNearestSlot(e.clientX, e.clientY, slots);
+      if (nearest && !dragState.mergeTargetId) {
+        updateWithAnimation(() => {
+          applyProjection({
+            scope: 'desktop',
+            globalIndex: nearest.globalIndex
+          });
+        });
+      }
+    } else if (target.type === 'dock' && !dragState.mergeTargetId) {
+      const slots = buildDockSlots();
+      const nearest = getNearestSlot(e.clientX, e.clientY, slots);
+      if (nearest) {
+        updateWithAnimation(() => {
+          applyProjection({
+            scope: 'dock',
+            index: nearest.index
+          });
+        });
+      }
+    }
+    checkAutoPageTurn(e.clientX);
+  }
+  
+  const throttledProcessDragMove = (() => {
+    let ticking = false;
+    let latest = null;
+    return (e) => {
+      latest = e;
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        processDragMove(latest);
+      });
+    };
+  })();
+  
+  function hideContextMenu() {
+    refs.contextMenu.classList.remove('active');
+    state.contextTarget = null;
+  }
+  
+  function showContextMenu(x, y, target) {
+    state.contextTarget = target;
+    const isBlank = target?.kind === 'blank';
+    
+    refs.ctxOpen.style.display = isBlank ? 'none' : '';
+    refs.ctxDelete.style.display = isBlank ? 'none' : '';
+    refs.ctxEdit.style.display = isBlank ? 'none' : '';
+    refs.ctxAdd.style.display = '';
+    refs.ctxWallpaper.style.display = '';
+    
+    refs.contextMenu.style.visibility = 'hidden';
+    refs.contextMenu.style.left = '0';
+    refs.contextMenu.style.top = '0';
+    refs.contextMenu.classList.add('active');
+    
+    const menuRect = refs.contextMenu.getBoundingClientRect();
+    const menuWidth = menuRect.width;
+    const menuHeight = menuRect.height;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const safeMargin = 8;
+    
+    let left = x;
+    if (left + menuWidth > viewportWidth - safeMargin) {
+      left = Math.max(x - menuWidth, safeMargin);
+    } else {
+      left = Math.max(left, safeMargin);
+    }
+    
+    let top = y;
+    if (top + menuHeight > viewportHeight - safeMargin) {
+      top = Math.max(y - menuHeight, safeMargin);
+    } else {
+      top = Math.max(top, safeMargin);
+    }
+    
+    refs.contextMenu.style.left = `${left}px`;
+    refs.contextMenu.style.top = `${top}px`;
+    refs.contextMenu.style.visibility = 'visible';
+    
+    if (window.Iconify) {
+      try { Iconify.scan(refs.contextMenu); } catch (_) {}
+    }
+  }
+  
+  function getContextTargetFromElement(el) {
+    if (!el) return null;
+    const scope = el.dataset.scope;
+    if (scope === 'desktop' || scope === 'dock') {
+      return {
+        kind: 'item',
+        scope,
+        itemId: el.dataset.id
+      };
+    }
+    if (scope === 'folder') {
+      return {
+        kind: 'item',
+        scope: 'folder',
+        folderId: el.dataset.folderId,
+        itemId: el.dataset.id
+      };
+    }
+    return null;
+  }
+  
+  function openItem(item) {
+    if (!item) return;
+    if (item.type === 'folder') {
+      openFolder(item.id);
+      return;
+    }
+    // 检查是否是云同步应用
+    if (item.url === '#sync' || item.id === 'app_sync') {
+      openSyncModal();
+      return;
+    }
+    if (item.url && item.url !== '#') {
+      window.open(item.url, '_blank');
+      return;
+    }
+    showToast(`打开 ${item.title}`);
+  }
+  
+  function openFolder(folderId) {
+    state.folderModalId = folderId;
+    renderFolderModal();
+    if (window.Iconify) {
+      try { Iconify.scan(document.body); } catch (_) {}
+    }
+  }
+  
+  function closeFolder() {
+    state.folderModalId = null;
+    refs.folderModal.classList.remove('active');
+  }
+  
+  window.closeFolder = closeFolder;
+  
+  function updateFormPreview() {
+    const name = refs.formName.value.trim() || '应用预览';
+    const url = refs.formUrl.value.trim() || 'https://example.com';
+    const icon = refs.formIcon.value.trim() || 'mdi:apps';
+    refs.formPreviewName.textContent = name;
+    refs.formPreviewLink.textContent = url;
+    if (isImageIcon(icon)) {
+      refs.formPreviewIcon.innerHTML = `<img src="${escapeHtml(icon)}" alt="">`;
+    } else {
+      refs.formPreviewIcon.innerHTML = `<span class="iconify" data-icon="${escapeHtml(icon)}"></span>`;
+    }
+    if (window.Iconify) {
+      try { Iconify.scan(refs.formPreviewIcon); } catch (_) {}
+    }
+  }
+  
+  function openFormModal(mode, context) {
+    state.formState = { mode, context };
+    refs.formModal.classList.add('active');
+    refs.formTitle.textContent = mode === 'edit' ? '编辑项目' : '添加应用';
+    if (mode === 'edit') {
+      const item = getItemById(context.itemId);
+      if (!item) return;
+      refs.formName.value = item.title || '';
+      if (item.type === 'folder') {
+        refs.formUrlRow.style.display = 'none';
+        refs.formIconRow.style.display = 'none';
+      } else {
+        refs.formUrlRow.style.display = '';
+        refs.formIconRow.style.display = '';
+        refs.formUrl.value = item.url || '';
+        refs.formIcon.value = item.icon || '';
+      }
+    } else {
+      refs.formName.value = '';
+      refs.formUrl.value = '';
+      refs.formIcon.value = '';
+      refs.formUrlRow.style.display = '';
+      refs.formIconRow.style.display = '';
+    }
+    updateFormPreview();
+  }
+  
+  function closeFormModal() {
+    refs.formModal.classList.remove('active');
+    state.formState = null;
+  }
+  
+  window.closeFormModal = closeFormModal;
+  
+  function saveFormModal() {
+    if (!state.formState) return;
+    const mode = state.formState.mode;
+    const context = state.formState.context;
+    const name = refs.formName.value.trim();
+    const url = refs.formUrl.value.trim();
+    const icon = refs.formIcon.value.trim();
+    if (!name) {
+      showToast('请填写名称');
+      refs.formName.focus();
+      return;
+    }
+    if (mode === 'edit') {
+      const item = getItemById(context.itemId);
+      if (!item) return;
+      item.title = name;
+      if (item.type !== 'folder') {
+        item.url = url || '#';
+        item.icon = icon || 'mdi:apps';
+      }
+      cleanupFolders();
+      closeFormModal();
+      renderAll();
+      showToast('已保存');
+      return;
+    }
+    const newItem = {
+      id: generateId('app'),
+      type: 'app',
+      title: name,
+      url: url || '#',
+      icon: icon || 'mdi:apps',
+      bgStyle: 'background:linear-gradient(135deg,#4f86ff,#7b61ff);'
+    };
+    if (context?.scope === 'folder' && context.folderId) {
+      insertFolderChild(context.folderId, newItem, Number.MAX_SAFE_INTEGER);
+      renderAll();
+      renderFolderModal();
+    } else if (context?.scope === 'desktop' && typeof context.afterGlobalIndex === 'number') {
+      insertDesktopItem(newItem, context.afterGlobalIndex + 1);
+      renderAll();
+    } else if (context?.scope === 'desktop-blank') {
+      const insertAt = Math.min((state.currentPage + 1) * state.layout.pageCapacity, state.desktop.items.length);
+      insertDesktopItem(newItem, insertAt);
+      renderAll();
+    } else if (context?.scope === 'dock') {
+      insertDockItem(newItem, state.dock.items.length);
+      renderAll();
+    } else {
+      insertDesktopItem(newItem, state.desktop.items.length);
+      renderAll();
+    }
+    closeFormModal();
+    showToast('已添加');
+  }
+  
+  function editCurrentContext() {
+    if (!state.contextTarget || state.contextTarget.kind !== 'item') return;
+    const targetContext = {...state.contextTarget};
+    hideContextMenu();
+    openFormModal('edit', targetContext);
+  }
+  
+  function addByCurrentContext() {
+    const ctx = state.contextTarget;
+    hideContextMenu();
+    if (!ctx) {
+      openFormModal('add', { scope: 'desktop-blank' });
+      return;
+    }
+    if (ctx.kind === 'blank') {
+      openFormModal('add', { scope: 'desktop-blank' });
+      return;
+    }
+    if (ctx.scope === 'desktop') {
+      const loc = locateItem(ctx.itemId);
+      openFormModal('add', { scope: 'desktop', afterGlobalIndex: loc?.globalIndex ?? state.desktop.items.length - 1 });
+      return;
+    }
+    if (ctx.scope === 'dock') {
+      openFormModal('add', { scope: 'dock' });
+      return;
+    }
+    if (ctx.scope === 'folder') {
+      openFormModal('add', { scope: 'folder', folderId: ctx.folderId });
+    }
+  }
+  
+  function openCurrentContext() {
+    if (!state.contextTarget || state.contextTarget.kind !== 'item') return;
+    const item = getItemById(state.contextTarget.itemId);
+    hideContextMenu();
+    openItem(item);
+  }
+  
+  function deleteCurrentContext() {
+    if (!state.contextTarget || state.contextTarget.kind !== 'item') return;
+    const item = getItemById(state.contextTarget.itemId);
+    if (!item) return;
+    if (!confirm(`确定删除"${item.title || '该项目'}"吗？`)) return;
+    deleteItemById(state.contextTarget.itemId);
+    closeFolder();
+    hideContextMenu();
+    showToast('已删除');
+  }
+  
+  function openWallpaperContext() {
+    hideContextMenu();
+    refs.wallpaperModal.classList.add('active');
+  }
+  
+  // 搜索引擎相关功能
+  window.toggleEnginePanel = function() {
+    const panel = document.getElementById('enginePanel');
+    panel.classList.toggle('active');
+    if (panel.classList.contains('active')) {
+      renderEngineList();
+    }
+  }
+  
+  window.toggleSearchScreenEnginePanel = function() {
+    const panel = document.getElementById('searchScreenEnginePanel');
+    panel.classList.toggle('active');
+    if (panel.classList.contains('active')) {
+      clearSuggestions();
+      renderEngineList();
+    }
+  }
+  
+  function renderEngineList() {
+    const engineHtml = SEARCH_ENGINES.map(engine => {
+      const isCustom = !engine.id.startsWith('preset-');
+      return `
+        <div class="engine-item ${engine.id === state.currentEngine.id ? 'active' : ''}" onclick="switchEngine('${engine.id}')">
+          ${isCustom ? `<div class="delete-engine" onclick="event.stopPropagation(); deleteEngine('${engine.id}')"><span class="iconify" data-icon="mdi:close"></span></div>` : ''}
+          <span class="iconify" data-icon="${engine.icon}"></span>
+          <span class="engine-name">${engine.name}</span>
+        </div>
+      `;
+    }).join('') + `
+      <div class="engine-item add-btn" onclick="openEngineFormModal()">
+        <span class="iconify" data-icon="mdi:plus"></span>
+        <span class="engine-name">添加</span>
+      </div>
+    `;
+    
+    const listEl = document.getElementById('engineList');
+    if (listEl) listEl.innerHTML = engineHtml;
+    const searchListEl = document.getElementById('searchScreenEngineList');
+    if (searchListEl) searchListEl.innerHTML = engineHtml;
+    
+    if (window.Iconify) {
+      try { 
+        Iconify.scan(listEl);
+        Iconify.scan(searchListEl);
+      } catch (_) {}
+    }
+  }
+  
+  window.switchEngine = function(engineId) {
+    const targetEngine = SEARCH_ENGINES.find(e => e.id === engineId);
+    if (!targetEngine) return;
+    state.currentEngine = targetEngine;
+    const iconEl = document.getElementById('engineIcon');
+    if (iconEl) {
+      iconEl.setAttribute('data-icon', targetEngine.icon);
+      if (window.Iconify) try { Iconify.scan(iconEl); } catch (_) {}
+    }
+    const searchIconEl = document.getElementById('searchScreenEngineIcon');
+    if (searchIconEl) {
+      searchIconEl.setAttribute('data-icon', targetEngine.icon);
+      if (window.Iconify) try { Iconify.scan(searchIconEl); } catch (_) {}
+    }
+    document.getElementById('enginePanel')?.classList.remove('active');
+    document.getElementById('searchScreenEnginePanel')?.classList.remove('active');
+    showToast(`已切换至${targetEngine.name}搜索`);
+    saveState();
+  }
+  
+  window.deleteEngine = function(engineId) {
+    if (!engineId.startsWith('preset-')) {
+      if (confirm('确定删除此自定义搜索引擎吗？')) {
+        if (deleteCustomEngine(engineId)) {
+          renderEngineList();
+          showToast('已删除');
+        }
+      }
+    }
+  }
+  
+  // 自定义搜索引擎表单
+  window.openEngineFormModal = function() {
+    refs.engineFormModal.classList.add('active');
+    document.getElementById('enginePanel').classList.remove('active');
+    document.getElementById('searchScreenEnginePanel').classList.remove('active');
+  }
+  
+  window.closeEngineFormModal = function() {
+    refs.engineFormModal.classList.remove('active');
+    // 清空表单
+    refs.engineFormName.value = '';
+    refs.engineFormIcon.value = '';
+    refs.engineFormUrl.value = '';
+  }
+  
+  window.saveCustomEngine = function() {
+    const name = refs.engineFormName.value.trim();
+    const icon = refs.engineFormIcon.value.trim() || 'mdi:magnify';
+    const url = refs.engineFormUrl.value.trim();
+    
+    if (!name) {
+      showToast('请输入引擎名称');
+      return;
+    }
+    if (!url) {
+      showToast('请输入搜索URL');
+      return;
+    }
+    if (!url.includes('%s')) {
+      showToast('URL必须包含%s作为搜索词占位符');
+      return;
+    }
+    
+    addCustomEngine(name, icon, url);
+    closeEngineFormModal();
+    renderEngineList();
+    showToast('已添加自定义搜索引擎');
+  }
+  
+  // 云同步模态框
+  window.openSyncModal = function() {
+    refs.syncModal.classList.add('active');
+    // 加载配置到表单
+    refs.githubToken.value = state.githubConfig.token || '';
+    refs.githubRepo.value = state.githubConfig.repo || '';
+    
+    // 设置同步间隔选择
+    const intervalSelect = document.getElementById('syncIntervalSelect');
+    if (intervalSelect) {
+      intervalSelect.value = state.githubConfig.syncInterval || 0;
+    }
+    
+    // 更新状态显示
+    if (state.githubConfig.owner && state.githubConfig.token) {
+      updateSyncStatus(true, `已验证 (${state.githubConfig.owner})`);
+    } else {
+      updateSyncStatus(false, '设置GitHub令牌以启用云同步');
+    }
+    updateSyncTimeInfo();
+  }
+  
+  window.closeSyncModal = function() {
+    refs.syncModal.classList.remove('active');
+  }
+  
+  // 全局函数暴露给HTML调用
+  window.manualPushToGithub = async function() {
+    const token = refs.githubToken.value.trim();
+    const repo = refs.githubRepo.value.trim();
+    const interval = parseInt(document.getElementById('syncIntervalSelect').value) || 0;
+    
+    // 保存配置
+    state.githubConfig.syncInterval = interval;
+    
+    if (token !== state.githubConfig.token) {
+      await validateGithubToken(token);
+    }
+    if (repo !== state.githubConfig.repo) {
+      state.githubConfig.repo = repo;
+    }
+    saveGithubConfig();
+    updateSyncTimeInfo();
+    
+    await pushToGithub(true);
+  }
+  
+  window.manualPullFromGithub = async function() {
+    const token = refs.githubToken.value.trim();
+    const repo = refs.githubRepo.value.trim();
+    const interval = parseInt(document.getElementById('syncIntervalSelect').value) || 0;
+    
+    // 保存配置
+    state.githubConfig.syncInterval = interval;
+    
+    if (token !== state.githubConfig.token) {
+      await validateGithubToken(token);
+    }
+    if (repo !== state.githubConfig.repo) {
+      state.githubConfig.repo = repo;
+    }
+    saveGithubConfig();
+    updateSyncTimeInfo();
+    
+    await pullFromGithub();
+  }
+  
+  // 同步间隔变更处理
+  function handleSyncIntervalChange() {
+    const interval = parseInt(document.getElementById('syncIntervalSelect').value) || 0;
+    state.githubConfig.syncInterval = interval;
+    saveGithubConfig();
+    updateSyncTimeInfo();
+    
+    if (interval > 0) {
+      showToast(`已设置每${interval}天自动同步`);
+    } else {
+      showToast('已关闭自动同步');
+    }
+  }
+  
+  // 渲染建议列表到search-screen-body
+  function renderSuggestionsToBody(remoteSuggestions = []) {
+    const container = refs.searchScreenBody;
+    if (!container) return;
+    
+    const history = getSearchHistory();
+    const hasContent = history.length > 0 || remoteSuggestions.length > 0;
+    
+    if (!hasContent) {
+      container.innerHTML = '<div class="suggest-empty">输入关键词查看搜索建议</div>';
+      return;
+    }
+    
+    let html = '<div class="suggest-list-container">';
+    
+    // 远程建议（百度）
+    if (remoteSuggestions.length > 0) {
+      html += '<div class="suggest-section-title">搜索建议</div>';
+      html += '<div class="suggest-list">';
+      remoteSuggestions.forEach(text => {
+        html += `
+          <div class="suggest-item" onclick="executeSuggestion('${escapeHtml(text)}')">
+            <span class="iconify" data-icon="mdi:magnify"></span>
+            <span class="suggest-text">${escapeHtml(text)}</span>
+            <div class="suggest-arrow" onclick="event.stopPropagation(); fillSuggestion('${escapeHtml(text)}')" title="填入搜索框">
+              <span class="iconify" data-icon="mdi:arrow-top-left"></span>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+    }
+    
+    // 历史记录
+    if (history.length > 0) {
+      html += `
+        <div class="suggest-history-header" style="margin-top: 24px;">
+          <div class="suggest-section-title" style="margin: 0;">搜索历史</div>
+          <div class="suggest-clear-history" onclick="clearSearchHistory()">清除全部</div>
+        </div>
+      `;
+      html += '<div class="suggest-list">';
+      history.forEach(text => {
+        html += `
+          <div class="suggest-item" onclick="executeSuggestion('${escapeHtml(text)}')">
+            <span class="iconify" data-icon="mdi:history"></span>
+            <span class="suggest-text">${escapeHtml(text)}</span>
+            <div class="suggest-arrow" onclick="event.stopPropagation(); fillSuggestion('${escapeHtml(text)}')" title="填入搜索框">
+              <span class="iconify" data-icon="mdi:arrow-top-left"></span>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
+    
+    if (window.Iconify) {
+      try { Iconify.scan(container); } catch (_) {}
+    }
+  }
+  
+  // 填充建议到搜索框
+  window.fillSuggestion = function(text) {
+    const searchInput = refs.searchScreenInput;
+    if (searchInput) {
+      searchInput.value = text;
+      searchInput.focus();
+      // 将光标移到末尾
+      searchInput.setSelectionRange(text.length, text.length);
+    }
+  }
+  
+  // 执行搜索
+  window.executeSuggestion = function(text) {
+    addSearchHistory(text);
+    handleSearchOrUrl(text, state.currentEngine);
+    closeSearchScreen();
+  }
+  
+  function isValidUrl(input) {
+    if (!input || typeof input !== 'string') return false;
+    let trimmed = input.trim();
+    if (trimmed === '') return false;
+    
+    if (/^https?:\/\//i.test(trimmed)) {
+      try {
+        new URL(trimmed);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+    
+    const domainPattern = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/;
+    const ipPattern = /^(\d{1,3}\.){3}\d{1,3}(:\d+)?(\/.*)?$/;
+    const localhostPattern = /^localhost(:\d+)?(\/.*)?$/i;
+    
+    if (domainPattern.test(trimmed) || ipPattern.test(trimmed) || localhostPattern.test(trimmed)) {
+      return true;
+    }
+    
+    if (!trimmed.includes('.') || /[\u4e00-\u9fa5\s]/.test(trimmed)) {
+      return false;
+    }
+    
+    try {
+      new URL('https://' + trimmed);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  function handleSearchOrUrl(keyword, engine) {
+    if (!keyword) return false;
+    const trimmedKeyword = keyword.trim();
+    
+    const mainInput = document.getElementById('searchInput');
+    const searchScreenInput = document.getElementById('searchScreenInput');
+    if (mainInput) mainInput.disabled = false;
+
+    if (isValidUrl(trimmedKeyword)) {
+      let url = trimmedKeyword;
+      if (!/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+      }
+      window.open(url, '_blank');
+      if (mainInput) mainInput.value = '';
+      if (searchScreenInput) searchScreenInput.value = '';
+      return true;
+    } else {
+      if (!engine || !engine.url) {
+        engine = SEARCH_ENGINES.find(e => e.id === 'preset-2') || SEARCH_ENGINES[2];
+      }
+      const searchUrl = engine.url.replace('%s', encodeURIComponent(trimmedKeyword));
+      window.open(searchUrl, '_blank');
+      if (mainInput) mainInput.value = '';
+      if (searchScreenInput) searchScreenInput.value = '';
+      return false;
+    }
+  }
+  
+  function setupSearch() {
+    const input = $('#searchInput');
+    if (!input) return;
+    input.addEventListener('focus', () => {
+      if (!state.searchScreenLock) {
+        openSearchScreen();
+      }
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const keyword = input.value.trim();
+      if (!keyword) return;
+      addSearchHistory(keyword);
+      handleSearchOrUrl(keyword, state.currentEngine);
+    });
+
+    const searchScreenInput = $('#searchScreenInput');
+    if (searchScreenInput) {
+      searchScreenInput.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        const keyword = searchScreenInput.value.trim();
+        if (!keyword) return;
+        addSearchHistory(keyword);
+        handleSearchOrUrl(keyword, state.currentEngine);
+        closeSearchScreen();
+      });
+      
+      // 修改input事件，直接渲染到body
+      searchScreenInput.addEventListener('input', (e) => {
+        document.getElementById('searchScreenEnginePanel').classList.remove('active');
+        const val = e.target.value.trim();
+        clearTimeout(state.suggestTimer);
+        
+        if (!val) {
+          // 显示历史记录
+          renderSuggestionsToBody([]);
+          return;
+        }
+        
+        // 先显示本地历史匹配
+        const history = getSearchHistory().filter(h => h.includes(val));
+        renderSuggestionsToBody([]);
+        
+        state.suggestTimer = setTimeout(() => {
+          // 请求百度建议
+          const script = document.createElement('script');
+          script.src = `https://www.baidu.com/su?wd=${encodeURIComponent(val)}&cb=handleRemoteSuggestions`;
+          document.body.appendChild(script);
+          script.onload = () => document.body.removeChild(script);
+          script.onerror = () => document.body.removeChild(script);
+        }, 150);
+      });
+      
+      searchScreenInput.addEventListener('blur', (e) => {
+        setTimeout(() => {
+          const activeEl = document.activeElement;
+          const isInSearchScreen = refs.searchScreen.contains(activeEl);
+          if (!isInSearchScreen && !state.searchScreenLock) {
+            closeSearchScreen();
+          }
+        }, 200);
+      });
+      
+      searchScreenInput.addEventListener('focus', () => {
+        // 获取焦点时显示历史或空状态
+        const val = searchScreenInput.value.trim();
+        if (!val) {
+          renderSuggestionsToBody([]);
+        }
+      });
+    }
+  }
+  
+  // 处理远程搜索建议回调
+  window.handleRemoteSuggestions = function(data) {
+    const suggestions = data.s || [];
+    state.suggestions = suggestions;
+    renderSuggestionsToBody(suggestions);
+  }
+  
+  function clearSuggestions() {
+    state.suggestions = [];
+    if (refs.searchScreenBody) {
+      refs.searchScreenBody.innerHTML = '<div class="suggest-empty">输入关键词查看搜索建议</div>';
+    }
+  }
+  
+  function openSearchScreen() {
+    if (state.searchScreenLock) return;
+    state.searchScreenLock = true;
+    const mainInput = $('#searchInput');
+    mainInput.blur();
+    mainInput.disabled = true;
+    refs.searchScreen.classList.add('active');
+    refs.searchScreenInput.value = mainInput.value;
+    refs.searchScreenEngineIcon.setAttribute('data-icon', state.currentEngine.icon);
+    
+    // 初始化显示空状态或历史记录
+    renderSuggestionsToBody([]); // 进入搜索页时强制刷新历史，读取最新本地存储
+    setTimeout(() => {
+      const val = refs.searchScreenInput.value.trim();
+      if (!val) {
+        renderSuggestionsToBody([]);
+      }
+    }, 50);
+    
+    if (window.Iconify) try { Iconify.scan(refs.searchScreenEngineIcon); } catch (_) {}
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          refs.searchScreenInput.focus();
+          refs.searchScreenInput.select();
+          state.searchScreenLock = false;
+          mainInput.disabled = false;
+        }, 300);
+      });
+    });
+    window.history.pushState({ searchOpen: true }, '搜索', '');
+    window.addEventListener('popstate', handleSearchPopState);
+  }
+  
+  window.closeSearchScreen = function() {
+    if (state.searchScreenLock) return;
+    refs.searchScreen.classList.remove('active');
+    refs.searchScreenInput.value = '';
+    const mainInput = $('#searchInput');
+    if (mainInput) {
+      mainInput.value = '';
+      mainInput.disabled = false;
+      mainInput.blur();
+    }
+    clearSuggestions();
+    refs.searchScreenEnginePanel.classList.remove('active');
+    refs.searchScreenInput.blur();
+    window.removeEventListener('popstate', handleSearchPopState);
+    if (window.history.state?.searchOpen) {
+      window.history.back();
+    }
+  }
+  
+  function handleSearchPopState(e) {
+    if (!e.state?.searchOpen) {
+      closeSearchScreen();
+    }
+  }
+  
+  function checkQuoteScroll() {
+    if (!refs.quoteText || !refs.quoteTextWrap) return;
+    refs.quoteText.classList.remove('scroll');
+    if (refs.quoteText.scrollWidth > refs.quoteTextWrap.clientWidth) {
+      refs.quoteText.classList.add('scroll');
+    }
+  }
+  
+  function handlePointerDown(e) {
+    if (e.target.closest('.context-menu') || e.target.closest('.form-content') || e.target.closest('.folder-content .top-btn') || e.target.closest('.search-screen') || e.target.closest('.engine-form-modal') || e.target.closest('.sync-modal')) return;
+    hideContextMenu();
+    const iconEl = e.target.closest('.app-icon[data-id]');
+    const isFormControl = !!e.target.closest('input, textarea, button, label');
+    if (isFormControl) return;
+    dragState.pointerId = e.pointerId;
+    dragState.startX = e.clientX;
+    dragState.startY = e.clientY;
+    dragState.currentX = e.clientX;
+    dragState.currentY = e.clientY;
+    dragState.contextTriggered = false;
+    if (iconEl) {
+      const sourceType = iconEl.dataset.scope === 'folder' ? 'folder' : iconEl.dataset.scope;
+      dragState.sourceEl = iconEl;
+      dragState.longPressTimer = setTimeout(() => {
+        if (dragState.active) return;
+        dragState.contextTriggered = true;
+        showContextMenu(e.clientX, e.clientY, getContextTargetFromElement(iconEl));
+      }, 430);
+      return;
+    }
+    const onDesktopBlank = e.target.closest('.desktop') && !e.target.closest('.app-icon');
+    if (onDesktopBlank) {
+      dragState.longPressTimer = setTimeout(() => {
+        dragState.contextTriggered = true;
+        showContextMenu(e.clientX, e.clientY, { kind: 'blank', scope: 'desktop-blank' });
+      }, 430);
+    }
+  }
+  
+  function handlePointerMove(e) {
+    if (dragState.pointerId !== e.pointerId) return;
+    const dx = e.clientX - dragState.startX;
+    const dy = e.clientY - dragState.startY;
+    const movedEnough = Math.hypot(dx, dy) > 8;
+    if (!dragState.active && movedEnough && dragState.sourceEl && !dragState.contextTriggered) {
+      if (dragState.longPressTimer) {
+        clearTimeout(dragState.longPressTimer);
+        dragState.longPressTimer = null;
+      }
+      const sourceType = dragState.sourceEl.dataset.scope === 'folder'
+        ? 'folder'
+        : dragState.sourceEl.dataset.scope;
+      beginDrag(dragState.sourceEl, sourceType, e);
+    }
+    if (!dragState.active) return;
+    e.preventDefault();
+    throttledProcessDragMove(e);
+  }
+  
+  function handlePointerUp(e) {
+    if (dragState.longPressTimer) {
+      clearTimeout(dragState.longPressTimer);
+      dragState.longPressTimer = null;
+    }
+    if (!dragState.active) {
+      if (!dragState.contextTriggered) {
+        const iconEl = e.target.closest('.app-icon[data-id]');
+        if (iconEl) {
+          const item = getItemById(iconEl.dataset.id);
+          if (item) openItem(item);
+        }
+      }
+      resetDragState();
+      return;
+    }
+    e.preventDefault();
+    if (dragState.overDelete) {
+      updateWithAnimation(() => {
+        deleteItemById(dragState.itemId);
+        cleanupFolders();
+      });
+      if (dragState.sourceType === 'folder') renderFolderModal();
+      showToast('已删除');
+      resetDragState();
+      return;
+    }
+    if (dragState.mergeTargetId) {
+      updateWithAnimation(() => {
+        mergeItems(dragState.itemId, dragState.mergeTargetId);
+        cleanupFolders();
+      });
+      showToast('已合并到文件夹');
+      resetDragState();
+      return;
+    }
+    renderAll();
+    resetDragState();
+  }
+  
+  function handlePointerCancel() {
+    if (dragState.originSnapshot) {
+      state.desktop.items = deepClone(dragState.originSnapshot.desktop);
+      state.dock.items = deepClone(dragState.originSnapshot.dock);
+      state.currentPage = dragState.originSnapshot.currentPage;
+      state.folderModalId = dragState.originSnapshot.folderModalId;
+      renderAll();
+    }
+    resetDragState();
+  }
+  
+  function setupPageSwipe() {
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    refs.desktop.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.app-icon')) return;
+      startX = e.clientX;
+      startY = e.clientY;
+      tracking = true;
+    }, { passive: true });
+    refs.desktop.addEventListener('pointerup', (e) => {
+      if (!tracking || dragState.active || refs.searchScreen.classList.contains('active')) return;
+      tracking = false;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.abs(dx) < 36 || Math.abs(dx) < Math.abs(dy)) return;
+      if (dx < 0 && state.currentPage < getPageCount() - 1) {
+        state.currentPage += 1;
+        updatePagesTransform(true);
+        saveState();
+      } else if (dx > 0 && state.currentPage > 0) {
+        state.currentPage -= 1;
+        updatePagesTransform(true);
+        saveState();
+      }
+    }, { passive: true });
+  }
+  
+  function setupBlankAreaPageTurn() {
+    document.addEventListener('click', (e) => {
+      if (refs.folderModal.classList.contains('active') ||
+          refs.formModal.classList.contains('active') ||
+          refs.contextMenu.classList.contains('active') ||
+          refs.wallpaperModal.classList.contains('active') ||
+          refs.searchScreen.classList.contains('active') ||
+          refs.engineFormModal.classList.contains('active') ||
+          refs.syncModal.classList.contains('active')) {
+        return;
+      }
+      const interactive = e.target.closest('.app-icon, .dock, .top-actions, .search-bar, .quote-edit-btn, .quote-action-btn, .page-indicators, .delete-zone');
+      if (interactive) return;
+      const desktop = refs.desktop;
+      if (!desktop.contains(e.target)) return;
+      const screenWidth = window.innerWidth;
+      const clickX = e.clientX;
+      if (clickX < screenWidth / 2) {
+        if (state.currentPage > 0) {
+          state.currentPage -= 1;
+          updatePagesTransform(true);
+          saveState();
+        }
+      } else {
+        if (state.currentPage < getPageCount() - 1) {
+          state.currentPage += 1;
+          updatePagesTransform(true);
+          saveState();
+        }
+      }
+    });
+  }
+  
+  function updateTime() {
+    const el = $('#bigTime');
+    if (!el) return;
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    el.textContent = `${h}:${m}`;
+  }
+  
+  function updateDate() {
+    const el = $('#headerDate');
+    if (!el) return;
+    const now = new Date();
+    const weekdays = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+    el.textContent = `${now.getMonth() + 1}月${now.getDate()}日 ${weekdays[now.getDay()]}`;
+  }
+  
+  function syncQuoteUI() {
+    const display = $('#quoteDisplay');
+    if (display) display.textContent = state.currentQuote;
+    requestAnimationFrame(checkQuoteScroll);
+  }
+  
+  window.editQuote = function () {
+    $('#quoteDisplayWrap').style.display = 'none';
+    $('#quoteEditMode').classList.add('active');
+    const input = $('#quoteInput');
+    input.value = state.currentQuote;
+    input.focus();
+  };
+  
+  window.saveQuote = function () {
+    const input = $('#quoteInput');
+    const value = input.value.trim();
+    if (value) state.currentQuote = value;
+    syncQuoteUI();
+    $('#quoteDisplayWrap').style.display = '';
+    $('#quoteEditMode').classList.remove('active');
+    saveState();
+    showToast('已保存一言');
+  };
+  
+  window.cancelQuoteEdit = function () {
+    $('#quoteDisplayWrap').style.display = '';
+    $('#quoteEditMode').classList.remove('active');
+  };
+  
+  function refreshLayout() {
+    state.layout = calcLayoutMetrics();
+    applyLayoutMetrics(state.layout);
+    clampCurrentPage();
+    renderAll();
+    requestAnimationFrame(checkQuoteScroll);
+  }
+  
+  function loadWallpaper() {
+  const saved = localStorage.getItem(WALLPAPER_KEY);
+  const wallpaperEl = document.getElementById('wallpaperRoot');
+  let wallpaperUrl = DEFAULT_WALLPAPER_URL; // 默认内置图片
+  
+  if (saved && saved !== 'default') {
+    wallpaperUrl = saved;
+  }
+  wallpaperEl.style.background = `url("${wallpaperUrl}") center/cover no-repeat fixed`;
+  wallpaperEl.style.backgroundSize = 'cover';
+  if (!saved) {
+    localStorage.setItem(WALLPAPER_KEY, DEFAULT_WALLPAPER_URL);
+  }
+}
+  
+  function applyWallpaper(url) {
+    if (!url) return;
+    localStorage.setItem(WALLPAPER_KEY, url);
+    const wallpaperEl = document.getElementById('wallpaperRoot');
+    wallpaperEl.style.background = `url("${url}") center/cover no-repeat fixed`;
+    wallpaperEl.style.backgroundSize = 'cover';
+    showToast('壁纸已更新');
+  }
+  
+  function resetWallpaper() {
+  localStorage.setItem(WALLPAPER_KEY, DEFAULT_WALLPAPER_URL);
+  loadWallpaper();  
+  showToast('已恢复默认壁纸');
+}
+
+  
+  function closeWallpaperModal() {
+    refs.wallpaperModal.classList.remove('active');
+  }
+  
+  window.closeWallpaperModal = closeWallpaperModal;
+  
+  function initWallpaperEvents() {
+    $('#wallpaperSelectBtn').addEventListener('click', () => {
+      refs.wallpaperFile.click();
+    });
+    refs.wallpaperFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        refs.wallpaperUrl.value = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+    $('#applyWallpaperBtn').addEventListener('click', () => {
+      const url = refs.wallpaperUrl.value.trim();
+      if (url) {
+        applyWallpaper(url);
+        closeWallpaperModal();
+        return;
+      }
+      showToast('请输入图片URL或选择图片');
+    });
+    $('#resetWallpaperBtn').addEventListener('click', () => {
+      resetWallpaper();
+      closeWallpaperModal();
+    });
+  }
+  
+  function initIconSelectEvent() {
+    $('#iconSelectBtn').addEventListener('click', () => {
+      $('#iconFileInput').click();
+    });
+    $('#iconFileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        refs.formIcon.value = ev.target.result;
+        updateFormPreview();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  
+  function bindEvents() {
+    // 阻止浏览器默认上下文菜单（右键菜单），避免干扰长按操作
+    document.addEventListener('contextmenu', (e) => {
+      // 如果在应用图标、桌面区域或 Dock 上，阻止默认菜单
+      if (e.target.closest('.app-icon, .desktop, .dock, .folder-grid, .drag-ghost')) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    }, { capture: true });
+    // 阻止图片默认拖拽行为
+document.addEventListener('dragstart', (e) => {
+  if (e.target.closest('.app-icon, .folder-preview-cell, .form-preview-icon')) {
+    e.preventDefault();
+  }
+});
+    document.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    window.addEventListener('pointermove', handlePointerMove, { passive: false });
+    window.addEventListener('pointerup', handlePointerUp, { passive: false });
+    window.addEventListener('pointercancel', handlePointerCancel, { passive: false });
+    refs.indicators.addEventListener('click', (e) => {
+      const dot = e.target.closest('[data-page]');
+      if (!dot) return;
+      state.currentPage = clamp(Number(dot.dataset.page) || 0, 0, getPageCount() - 1);
+      updatePagesTransform(true);
+      saveState();
+    });
+    refs.ctxOpen.addEventListener('click', openCurrentContext);
+    refs.ctxEdit.addEventListener('click', editCurrentContext);
+    refs.ctxAdd.addEventListener('click', addByCurrentContext);
+    refs.ctxDelete.addEventListener('click', deleteCurrentContext);
+    refs.ctxWallpaper.addEventListener('click', openWallpaperContext);
+    refs.formName.addEventListener('input', updateFormPreview);
+    refs.formUrl.addEventListener('input', updateFormPreview);
+    refs.formIcon.addEventListener('input', updateFormPreview);
+    refs.formSaveBtn.addEventListener('click', saveFormModal);
+    
+    // Token输入框失焦验证
+    refs.githubToken.addEventListener('blur', async (e) => {
+      const token = e.target.value.trim();
+      if (token && token !== state.githubConfig.token) {
+        await validateGithubToken(token);
+      }
+    });
+    
+    // Repo输入框变化保存
+    refs.githubRepo.addEventListener('change', (e) => {
+      state.githubConfig.repo = e.target.value.trim();
+      saveGithubConfig();
+    });
+    
+    // 同步间隔选择变更
+    const intervalSelect = document.getElementById('syncIntervalSelect');
+    if (intervalSelect) {
+      intervalSelect.addEventListener('change', handleSyncIntervalChange);
+    }
+    
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.context-menu') && !e.target.closest('.app-icon')) {
+        hideContextMenu();
+      }
+      if (!e.target.closest('.search-icon') && !e.target.closest('.engine-panel')) {
+        document.getElementById('enginePanel').classList.remove('active');
+      }
+      if (!e.target.closest('#searchScreenEngineIcon') && !e.target.closest('#searchScreenEnginePanel')) {
+        document.getElementById('searchScreenEnginePanel').classList.remove('active');
+      }
+    });
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (refs.searchScreen.classList.contains('active')) {
+          closeSearchScreen();
+          return;
+        }
+        closeFolder();
+        hideContextMenu();
+        closeFormModal();
+        closeWallpaperModal();
+        closeEngineFormModal();
+        closeSyncModal();
+        document.getElementById('enginePanel').classList.remove('active');
+        clearSuggestions();
+        if (dragState.active && dragState.originSnapshot) {
+          state.desktop.items = deepClone(dragState.originSnapshot.desktop);
+          state.dock.items = deepClone(dragState.originSnapshot.dock);
+          state.currentPage = dragState.originSnapshot.currentPage;
+          state.folderModalId = dragState.originSnapshot.folderModalId;
+          renderAll();
+        }
+        resetDragState();
+      }
+      if (e.key === 'ArrowLeft' && state.currentPage > 0 && !refs.searchScreen.classList.contains('active')) {
+        state.currentPage -= 1;
+        updatePagesTransform(true);
+        saveState();
+      }
+      if (e.key === 'ArrowRight' && state.currentPage < getPageCount() - 1 && !refs.searchScreen.classList.contains('active')) {
+        state.currentPage += 1;
+        updatePagesTransform(true);
+        saveState();
+      }
+    });
+    
+    window.addEventListener('resize', debounce(() => {
+      refreshLayout();
+      checkQuoteScroll();
+    }, 120));
+    
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        const mainInput = $('#searchInput');
+        const searchScreenInput = $('#searchScreenInput');
+        if (mainInput) mainInput.value = '';
+        if (searchScreenInput) searchScreenInput.value = '';
+        closeSearchScreen();
+        // 检查是否需要自动同步
+        triggerAutoSync();
+      }
+    });
+  }
+  
+  function init() {
+    resolveRefs();
+    loadCustomEngines(); // 先加载自定义搜索引擎
+    loadGithubConfig(); // 加载GitHub配置
+    loadState();
+    state.layout = calcLayoutMetrics();
+    applyLayoutMetrics(state.layout);
+    syncQuoteUI();
+    updateTime();
+    updateDate();
+    renderAll();
+    bindEvents();
+    setupSearch();
+    setupPageSwipe();
+    setupBlankAreaPageTurn();
+    loadWallpaper();
+    initWallpaperEvents();
+    initIconSelectEvent();
+    
+    const iconEl = document.getElementById('engineIcon');
+    iconEl.setAttribute('data-icon', state.currentEngine.icon);
+    if (window.Iconify) {
+      try { Iconify.scan(iconEl); } catch (_) {}
+    }
+    
+    requestAnimationFrame(checkQuoteScroll);
+    setInterval(updateTime, 1000);
+    setInterval(updateDate, 60000);
+    
+    // 定期检查是否需要自动同步（每小时检查一次）
+    setInterval(() => {
+      triggerAutoSync();
+    }, 60 * 60 * 1000);
+    
+    if (window.Iconify) {
+      try { Iconify.scan(document.body); } catch (_) {}
+    }
+    
+    window.addEventListener('load', () => {
+      refreshLayout();
+      if (window.Iconify) Iconify.scan(document.body);
+    });
+  }
+  
+  window.addEventListener('DOMContentLoaded', init);
+  window.addEventListener('orientationchange', refreshLayout);
+})();
+  </script>
+</body>
+</html>
